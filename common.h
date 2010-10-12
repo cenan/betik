@@ -16,33 +16,19 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef token_h
-#define token_h
-
-#include "common.h"
-
-#define MAX_IDENT_LENGTH   64
-#define MAX_STRING_LENGTH  1024
-
-typedef enum {
-	TT_NONE=    0,
-	TT_IDENT=   1,
-	TT_NUMBER=  2,
-	TT_STRING=  3,
-	TT_EOF=     4,
-	TT_UNKNOWN= 5,
-	TT_OP_AND=  10,
-	TT_OP_OR=   11,
-} token_type_t;
+#ifndef common_h
+#define common_h
 
 typedef struct {
-	char* source;
-	int source_index;
-	stack_t* index_stack;
-	void* token_value;
-	token_type_t token_type;
-	int line_number;
-} tokenizer_t;
+	int      top;
+	void*    buffer;
+	unsigned item_length;
+} stack_t;
 
-#endif // token_h
+stack_t* create_stack(unsigned item_length);
+void destroy_stack(stack_t* s);
+void stack_push(stack_t* s, void* item);
+const void* stack_pop(stack_t* s);
+
+#endif // common_h
 
