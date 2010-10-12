@@ -21,6 +21,32 @@
 
 #include "token.h"
 
+static int is_whitespace(char c)
+{
+	return ((c == ' ') || (c == '\t') || (c == '\r') || (c == '\n'));
+}
+
+static int is_alpha(char c)
+{
+	if (c < 0)
+	{
+		return 1;
+	}
+	return (((c >= 'a') && (c <= 'z')) || 
+	        ((c >= 'A') && (c <= 'Z')) ||
+	        (c == '_'));
+}
+
+static int is_alphanum(char c)
+{
+	return (is_alpha(c) || isdigit(c));
+}
+
+static int is_digit(char c)
+{
+	return ((c >= '0') && (c <= '9'));
+}
+
 static struct {
 	char* str;
 	token_type_t token_type;
