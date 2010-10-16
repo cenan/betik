@@ -223,12 +223,33 @@ token_type_t get_token(tokenizer_t* t)
 	return TT_UNKNOWN;
 }
 
+void unget_token(tokenizer_t* t)
+{
+	int prev_source_index = *(int*)stack_pop(t->index_stack);
+	if (t->source_index <= prev_source_index) {
+		t->source_index = prev_source_index;
+		return;
+	}
+	do {
+		t->source_index--;
+		if ('\n' == t->source[t->source_index]) {
+			t->line_number--;
+		}
+	} while (t->source_index > prev_source_index);
+}
+
 #include "seatest.h"
 
-void test1()
+static void tokenizer_test1()
 {
 	tokenizer_t* t = (tokenizer_t*)malloc(sizeof(tokenizer_t));
 	init_tokenizer(t, " 1 \"asd\" 3");
+	assert_int_equal(TT_NUMBER, get_token(t));
+	assert_int_equal(TT_STRING, get_token(t));
+	assert_int_equal(TT_NUMBER, get_token(t));
+	unget_token(t);
+	unget_token(t);
+	unget_token(t);
 	assert_int_equal(TT_NUMBER, get_token(t));
 	assert_int_equal(TT_STRING, get_token(t));
 	assert_int_equal(TT_NUMBER, get_token(t));
@@ -239,7 +260,7 @@ void test1()
 void tokenizer_test_fixture(void)
 {
 	test_fixture_start();
-	run_test(test1);
+	run_test(tokenizer_test1);
 	test_fixture_end();
 }
 

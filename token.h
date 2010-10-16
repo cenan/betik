@@ -44,5 +44,10 @@ typedef struct {
 	int line_number;
 } tokenizer_t;
 
+void init_tokenizer(tokenizer_t* t, char* source);
+void release_tokenizer(tokenizer_t* t);
+token_type_t get_token(tokenizer_t* t);
+void unget_token(tokenizer_t* t);
+
 #endif // token_h
 
