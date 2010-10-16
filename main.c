@@ -16,8 +16,18 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "seatest.h"
+
+void tokenizer_test_fixture(void);
+
+void all_unit_tests(void)
+{
+	tokenizer_test_fixture();
+}
+
 int main(int argc, char* argv[])
 {
+	run_tests(all_unit_tests);
 	return 0;
 }
 

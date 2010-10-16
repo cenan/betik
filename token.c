@@ -223,3 +223,23 @@ token_type_t get_token(tokenizer_t* t)
 	return TT_UNKNOWN;
 }
 
+#include "seatest.h"
+
+void test1()
+{
+	tokenizer_t* t = (tokenizer_t*)malloc(sizeof(tokenizer_t));
+	init_tokenizer(t, " 1 \"asd\" 3");
+	assert_int_equal(TT_NUMBER, get_token(t));
+	assert_int_equal(TT_STRING, get_token(t));
+	assert_int_equal(TT_NUMBER, get_token(t));
+	release_tokenizer(t);
+	free(t);
+}
+
+void tokenizer_test_fixture(void)
+{
+	test_fixture_start();
+	run_test(test1);
+	test_fixture_end();
+}
+
