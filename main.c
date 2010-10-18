@@ -19,10 +19,12 @@
 #include "seatest.h"
 
 void tokenizer_test_fixture(void);
+void parser_test_fixture(void);
 
 void all_unit_tests(void)
 {
 	tokenizer_test_fixture();
+	parser_test_fixture();
 }
 
 int main(int argc, char* argv[])

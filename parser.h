@@ -19,5 +19,11 @@
 #ifndef parser_h
 #define parser_h
 
+#include "token.h" 
+
+typedef struct {
+	tokenizer_t* t;
+} parser_t;
+
 #endif // parser_h
 
