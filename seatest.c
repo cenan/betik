@@ -1,5 +1,5 @@
 #include "seatest.h"
-#include <conio.h>
+#include <stdio.h>
 #ifdef WIN32
 #include "windows.h"
 #else
@@ -210,7 +210,7 @@ int run_tests(void (*tests)(void))
 	printf("                    in %d ms\r\n",end - start);
 	printf("==================================================\r\n");
 
-	getch();
+	getchar();
 	return sea_tests_failed == 0;
 }
 
