@@ -56,8 +56,8 @@ static struct {
 };
 
 static struct { 
-char* op;
-token_type_t token;
+	char* op;
+	token_type_t token;
 } operators[] = {
 	{"+", TT_OP_ADD},
 	{"-", TT_OP_SUB},
@@ -236,7 +236,7 @@ token_type_t get_token(tokenizer_t* t)
 	}
 
 	int i;
-	for (i = 0;	i < sizeof(operators) / sizeof(operators[0]); i++) {
+	for (i = 0; i < sizeof(operators) / sizeof(operators[0]); i++) {
 		if (strncmp(operators[i].op, &t->source[t->source_index], strlen(operators[i].op)) == 0) {
 			t->source_index += strlen(operators[i].op);
 			return operators[i].token;
