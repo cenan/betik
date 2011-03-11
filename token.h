@@ -25,14 +25,23 @@
 #define MAX_STRING_LENGTH  1024
 
 typedef enum {
-	TT_NONE=    0,
-	TT_IDENT=   1,
-	TT_NUMBER=  2,
-	TT_STRING=  3,
-	TT_EOF=     4,
-	TT_UNKNOWN= 5,
-	TT_OP_AND=  10,
-	TT_OP_OR=   11,
+	TT_NONE=     0,
+	TT_IDENT=    1,
+	TT_NUMBER=   2,
+	TT_STRING=   3,
+	TT_EOF=      4,
+	TT_UNKNOWN=  5,
+	TT_OP_AND=   10,
+	TT_OP_OR=    11,
+	TT_OP_ADD=   12,
+	TT_OP_SUB=   13,
+	TT_OP_MUL=   14,
+	TT_OP_DIV=   15,
+	TT_OP_COMMA= 16,
+	TT_OP_POPEN= 17,
+	TT_OP_PCLOSE=18,
+	TT_OP_BOPEN =19,
+	TT_OP_BCLOSE=20,
 } token_type_t;
 
 typedef struct {

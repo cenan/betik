@@ -55,6 +55,21 @@ static struct {
 	{"or",     TT_OP_OR},
 };
 
+static struct { 
+char* op;
+token_type_t token;
+} operators[] = {
+	{"+", TT_OP_ADD},
+	{"-", TT_OP_SUB},
+	{"*", TT_OP_MUL},
+	{"/", TT_OP_DIV},
+	{",", TT_OP_COMMA},
+	{"(", TT_OP_POPEN},
+	{")", TT_OP_PCLOSE},
+	{"[", TT_OP_BOPEN},
+	{"]", TT_OP_BCLOSE},
+};
+
 void init_tokenizer(tokenizer_t* t, char* source)
 {
 	t->source = (char*)malloc(strlen(source) + 1);
@@ -220,6 +235,14 @@ token_type_t get_token(tokenizer_t* t)
 		return TT_STRING;
 	}
 
+	int i;
+	for (i = 0;	i < sizeof(operators) / sizeof(operators[0]); i++) {
+		if (strncmp(operators[i].op, &t->source[t->source_index], strlen(operators[i].op)) == 0) {
+			t->source_index += strlen(operators[i].op);
+			return operators[i].token;
+		}
+	}
+
 	return TT_UNKNOWN;
 }
 
@@ -243,15 +266,18 @@ void unget_token(tokenizer_t* t)
 static void tokenizer_test1()
 {
 	tokenizer_t* t = (tokenizer_t*)malloc(sizeof(tokenizer_t));
-	init_tokenizer(t, " 1 \"asd\" 3");
+	init_tokenizer(t, " 1 \"asd\" * 3");
 	assert_int_equal(TT_NUMBER, get_token(t));
 	assert_int_equal(TT_STRING, get_token(t));
+	assert_int_equal(TT_OP_MUL, get_token(t));
 	assert_int_equal(TT_NUMBER, get_token(t));
+	unget_token(t);
 	unget_token(t);
 	unget_token(t);
 	unget_token(t);
 	assert_int_equal(TT_NUMBER, get_token(t));
 	assert_int_equal(TT_STRING, get_token(t));
+	assert_int_equal(TT_OP_MUL, get_token(t));
 	assert_int_equal(TT_NUMBER, get_token(t));
 	release_tokenizer(t);
 	free(t);

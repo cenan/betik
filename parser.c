@@ -40,10 +40,10 @@ void parse(parser_t* p)
 static void parser_test1()
 {
 	parser_t* p = (parser_t*)malloc(sizeof(parser_t));
-	init_parser(p, "1 2 3 4 5");
+	init_parser(p, "1 2 + 4 5");
 	assert_int_equal(TT_NUMBER, get_token(p->t));
 	assert_int_equal(TT_NUMBER, get_token(p->t));
-	assert_int_equal(TT_NUMBER, get_token(p->t));
+	assert_int_equal(TT_OP_ADD, get_token(p->t));
 	assert_int_equal(TT_NUMBER, get_token(p->t));
 	assert_int_equal(TT_NUMBER, get_token(p->t));
 	assert_int_equal(TT_EOF, get_token(p->t));
