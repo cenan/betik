@@ -1,4 +1,5 @@
 #include "seatest.h"
+#include <string.h>
 #include <stdio.h>
 #ifdef WIN32
 #include "windows.h"
@@ -207,7 +208,7 @@ int run_tests(void (*tests)(void))
 		printf("               ALL TESTS PASSED\r\n");
 	}
 	printf("                 %d tests run\r\n", sea_tests_run);
-	printf("                    in %d ms\r\n",end - start);
+	printf("                    in %lu ms\r\n",end - start);
 	printf("==================================================\r\n");
 
 	getchar();

@@ -42,6 +42,12 @@ typedef enum {
 	TT_OP_PCLOSE=18,
 	TT_OP_BOPEN =19,
 	TT_OP_BCLOSE=20,
+	TT_OP_COPEN =21,
+	TT_OP_CCLOSE=22,
+
+	TT_END      =30,
+	TT_IF       =31,
+	TT_WHILE    =32,
 } token_type_t;
 
 typedef struct {

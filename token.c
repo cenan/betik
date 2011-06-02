@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "token.h"
 
@@ -53,6 +54,9 @@ static struct {
 } keywords[] = {
 	{"and",    TT_OP_AND},
 	{"or",     TT_OP_OR},
+	{"if",     TT_IF},
+	{"while",  TT_WHILE},
+	{"end",    TT_END},
 };
 
 static struct { 
@@ -68,6 +72,8 @@ static struct {
 	{")", TT_OP_PCLOSE},
 	{"[", TT_OP_BOPEN},
 	{"]", TT_OP_BCLOSE},
+	{"{", TT_OP_COPEN},
+	{"}", TT_OP_CCLOSE},
 };
 
 void init_tokenizer(tokenizer_t* t, char* source)
@@ -227,7 +233,7 @@ token_type_t get_token(tokenizer_t* t)
 
 	if (is_alpha(t->source[t->source_index])) {
 		tokenize_identifier(t);
-		return TT_IDENT;
+		return t->token_type;
 	}
 
 	if ('"' == t->source[t->source_index]) {

@@ -16,7 +16,17 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdlib.h>
+#include <stdio.h>
 #include "parser.h"
+
+static int match(parser_t* p, token_type_t tok)
+{
+	get_token(p->t);
+	if (p->t->token_type != tok)
+		return 0;
+	return 1;
+}
 
 void init_parser(parser_t* p, char* source)
 {
@@ -30,6 +40,43 @@ void release_parser(parser_t* p)
 	free(p->t);
 }
 
+static void parse_expression(parser_t* p)
+{
+}
+
+static void parse_statement(parser_t* p)
+{
+}
+
+static void parse_block(parser_t* p)
+{
+	token_type_t tok = get_token(p->t);
+	while (tok != TT_END) {
+		unget_token(p->t);
+		parse_statement(p);
+		tok = get_token(p->t);
+	}
+	unget_token(p->t);
+}
+
+static void parse_if(parser_t* p)
+{
+	match(p, TT_IF);
+	parse_expression(p);
+	parse_block(p);
+}
+
+static void parse_while(parser_t* p)
+{
+	match(p, TT_WHILE);
+	match(p, TT_OP_POPEN);
+	parse_expression(p);
+	match(p, TT_OP_PCLOSE);
+	match(p, TT_OP_COPEN);
+	parse_block(p);
+	match(p, TT_OP_CCLOSE);
+}
+
 void parse(parser_t* p)
 {
 	
@@ -40,11 +87,9 @@ void parse(parser_t* p)
 static void parser_test1()
 {
 	parser_t* p = (parser_t*)malloc(sizeof(parser_t));
-	init_parser(p, "1 2 + 4 5");
-	assert_int_equal(TT_NUMBER, get_token(p->t));
+	init_parser(p, "1+2");
 	assert_int_equal(TT_NUMBER, get_token(p->t));
 	assert_int_equal(TT_OP_ADD, get_token(p->t));
-	assert_int_equal(TT_NUMBER, get_token(p->t));
 	assert_int_equal(TT_NUMBER, get_token(p->t));
 	assert_int_equal(TT_EOF, get_token(p->t));
 	release_parser(p);
