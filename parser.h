@@ -22,7 +22,14 @@
 #include "token.h" 
 
 typedef struct {
+} statement_t;
+
+typedef struct {
+} ast_t;
+
+typedef struct {
 	tokenizer_t* t;
+	ast_t* ast;
 } parser_t;
 
 #endif // parser_h

@@ -32,10 +32,12 @@ void init_parser(parser_t* p, char* source)
 {
 	p->t = (tokenizer_t*)malloc(sizeof(tokenizer_t));
 	init_tokenizer(p->t, source);
+	p->ast = (ast_t*)malloc(sizeof(ast_t));
 }
 
 void release_parser(parser_t* p)
 {
+	free(p->ast);
 	release_tokenizer(p->t);
 	free(p->t);
 }
@@ -44,8 +46,10 @@ static void parse_expression(parser_t* p)
 {
 }
 
-static void parse_statement(parser_t* p)
+static statement_t* parse_statement(parser_t* p)
 {
+	statement_t* statement = (statement_t*)malloc(sizeof(statement_t));
+	return statement;
 }
 
 static void parse_block(parser_t* p)
@@ -79,7 +83,11 @@ static void parse_while(parser_t* p)
 
 void parse(parser_t* p)
 {
-	
+	token_type_t tok = get_token(p->t);
+	while (TT_EOF != tok) {
+		unget_token(p->t);
+		statement_t* statement = parse_statement(p);
+	}
 }
 
 #include "seatest.h"
@@ -96,10 +104,22 @@ static void parser_test1()
 	free(p);
 }
 
+static void parser_test2()
+{
+	parser_t* p = (parser_t*)malloc(sizeof(parser_t));
+	init_parser(p, "1+2");
+
+	//assert_int_equal();
+
+	release_parser(p);
+	free(p);
+}
+
 void parser_test_fixture(void)
 {
 	test_fixture_start();
 	run_test(parser_test1);
+	run_test(parser_test2);
 	test_fixture_end();
 }
 
