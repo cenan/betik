@@ -18,11 +18,13 @@
 
 #include "seatest.h"
 
+void common_lib_test_fixture(void);
 void tokenizer_test_fixture(void);
 void parser_test_fixture(void);
 
 void all_unit_tests(void)
 {
+	common_lib_test_fixture();
 	tokenizer_test_fixture();
 	parser_test_fixture();
 }

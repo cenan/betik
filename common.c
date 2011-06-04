@@ -200,3 +200,67 @@ int list_get_item_count(list_t* list)
 	return list->item_count;
 }
 
+
+#include "seatest.h"
+
+static void stack_test()
+{
+	int a = 10, b = 20, c = 30;
+	stack_t* s = create_stack(sizeof(int));
+	stack_push(s, &a);
+	stack_push(s, &b);
+	stack_push(s, &c);
+	assert_int_equal(30, *(int*)stack_pop(s));
+	assert_int_equal(20, *(int*)stack_pop(s));
+	assert_int_equal(10, *(int*)stack_pop(s));
+	destroy_stack(s);
+}
+
+
+list_t* create_list();
+void destroy_list(list_t* list);
+void list_insert(list_t* list, void* data);
+void list_remove_by_index(list_t* list, int item_index);
+void list_remove_by_data(list_t* list, void* data);
+void* list_get_item(list_t* list, int item_index);
+int list_get_item_count(list_t* list);
+
+static void list_test()
+{
+	list_t* l = create_list();
+	list_insert(l, (void*)10);
+	list_insert(l, (void*)20);
+	list_insert(l, (void*)30);
+	list_insert(l, (void*)40);
+	assert_int_equal(10, (int)list_get_item(l, 0));
+	assert_int_equal(20, (int)list_get_item(l, 1));
+	assert_int_equal(30, (int)list_get_item(l, 2));
+	assert_int_equal(40, (int)list_get_item(l, 3));
+	assert_int_equal(4, list_get_item_count(l));
+	list_remove_by_index(l, 1);
+	assert_int_equal(3, list_get_item_count(l));
+	assert_int_equal(30, (int)list_get_item(l, 1));
+	list_remove_by_data(l, (void*)10);
+	assert_int_equal(30, (int)list_get_item(l, 0));
+	assert_int_equal(2, list_get_item_count(l));
+
+	int i;
+	for (i = 0; i < 10000; i++) {
+		list_insert(l, (void*)i);
+	}
+	assert_int_equal(10002, list_get_item_count(l));
+	for (i = 0; i < 10000; i++) {
+		list_remove_by_data(l, (void*)i);
+	}
+	assert_int_equal(2, list_get_item_count(l));
+	destroy_list(l);
+}
+
+void common_lib_test_fixture(void)
+{
+	test_fixture_start();
+	run_test(stack_test);
+	run_test(list_test);
+	test_fixture_end();
+}
+
