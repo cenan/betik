@@ -30,5 +30,26 @@ void destroy_stack(stack_t* s);
 void stack_push(stack_t* s, void* item);
 const void* stack_pop(stack_t* s);
 
+
+typedef struct _listitem_t {
+	void* data;
+	struct _listitem_t* prev;
+	struct _listitem_t* next;
+} listitem_t;
+
+typedef struct {
+	int item_count;
+	listitem_t* head;
+} list_t;
+
+list_t* create_list();
+void destroy_list(list_t* list);
+void list_insert(list_t* list, void* data);
+void list_remove_by_index(list_t* list, int item_index);
+void list_remove_by_data(list_t* list, void* data);
+void* list_get_item(list_t* list, int item_index);
+int list_get_item_count(list_t* list);
+
+
 #endif // common_h
 
