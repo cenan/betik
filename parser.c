@@ -155,13 +155,37 @@ static void parser_test1()
 	free(p);
 }
 
+static int tester_expr_eval(expression_t* e)
+{
+	value_t* v0 = (value_t*)list_get_item(e->values, 0);
+	int ret = (int)v0->value;;
+	int i;
+	for (i = 1; i < list_get_item_count(e->values); i++) {
+		value_t* v = (value_t*)list_get_item(e->values, i);
+		int foo = (int)v->value;
+		token_type_t tok = (token_type_t)list_get_item(e->binaryops, i-1);
+		if (TT_OP_ADD == tok) {
+			ret += foo;
+		} else if (TT_OP_SUB == tok) {
+			ret -= foo;
+		}
+	}
+	return ret;
+}
+
 static void parser_test2()
 {
 	parser_t* p = (parser_t*)malloc(sizeof(parser_t));
-	init_parser(p, "1+2");
+	init_parser(p, "100+200-600-20");
 	p->ast->statement_list = create_list();
 	parse(p);
+	
 	assert_int_equal(list_get_item_count(p->ast->statement_list), 1);
+	
+	statement_t* s = list_get_item(p->ast->statement_list, 0);
+	expression_t* e = (expression_t*)s->value;
+	assert_int_equal(-320, tester_expr_eval(e));
+
 	destroy_list(p->ast->statement_list);
 	release_parser(p);
 	free(p);

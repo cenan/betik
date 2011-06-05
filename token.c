@@ -146,6 +146,7 @@ static void tokenize_number(tokenizer_t* t)
 	while (is_digit(t->source[t->source_index])) {
 		(*(int*)(t->token_value)) *= 10;
 		(*(int*)(t->token_value)) += t->source[t->source_index] - '0';
+		t->source_index++;
 	}
 }
 
@@ -272,7 +273,7 @@ void unget_token(tokenizer_t* t)
 static void tokenizer_test1()
 {
 	tokenizer_t* t = (tokenizer_t*)malloc(sizeof(tokenizer_t));
-	init_tokenizer(t, " 1 \"asd\" * 3");
+	init_tokenizer(t, " 10 \"asd\" * 3");
 	assert_int_equal(TT_NUMBER, get_token(t));
 	assert_int_equal(TT_STRING, get_token(t));
 	assert_int_equal(TT_OP_MUL, get_token(t));
