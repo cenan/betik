@@ -20,11 +20,37 @@
 #define parser_h
 
 #include "token.h" 
+#include "common.h"
+
+typedef enum {
+	ST_EXPRESSION,
+	ST_IF,
+	ST_WHILE
+} statement_type_t;
+
+typedef enum {
+	VT_EXPRESSION,
+	VT_NUMBER
+} value_type_t;
 
 typedef struct {
+	list_t* values;
+	list_t* binaryops;
+	list_t* unaryops;
+} expression_t;
+
+typedef struct {
+	statement_type_t type;
+	void* value;
 } statement_t;
 
 typedef struct {
+	value_type_t type;
+	void* value;
+} value_t;
+
+typedef struct {
+	list_t* statement_list;
 } ast_t;
 
 typedef struct {

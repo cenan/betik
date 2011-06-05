@@ -42,13 +42,62 @@ void release_parser(parser_t* p)
 	free(p->t);
 }
 
-static void parse_expression(parser_t* p)
+static value_t* parse_value(parser_t* p)
 {
+	value_t* value = (value_t*)malloc(sizeof(value_t));
+	token_type_t tok = get_token(p->t);
+	if (tok = TT_NUMBER) {
+		value->type = VT_NUMBER;
+		value->value = (void*)(*(int*)(p->t->token_value));
+	} else {
+		fprintf(stderr, "unknown value type!!\n");
+		exit(EXIT_FAILURE);
+	}
+	return value;
+}
+
+static expression_t* parse_expression(parser_t* p)
+{
+	expression_t* expression = (expression_t*)malloc(sizeof(expression_t));
+	expression->values = create_list();
+	expression->binaryops = create_list();
+	expression->unaryops = create_list();
+	while (1) {
+		token_type_t tok = get_token(p->t);
+		if (tok == TT_OP_POPEN) {
+			value_t* value = (value_t*)malloc(sizeof(value_t));
+			value->type = VT_EXPRESSION;
+			value->value = parse_expression(p);
+			list_insert(expression->values, value);
+			match(p, TT_OP_PCLOSE);
+		} else {
+			if (TOK_IS_UNARY_OP(tok)) {
+				if (tok == TT_OP_SUB) {
+					tok = TT_OP_UNARYSUB;
+				}
+				list_insert(expression->unaryops, (void*)tok);
+			} else {
+				list_insert(expression->unaryops, (void*)TT_NOP);
+				unget_token(p->t);
+			}
+			list_insert(expression->values, parse_value(p));
+		}
+		tok = get_token(p->t);
+		if (TOK_IS_BINARY_OP(tok)) {
+			list_insert(expression->binaryops, (void*)tok);
+		} else {
+			unget_token(p->t);
+			break;
+		}
+	}
+	return expression;
 }
 
 static statement_t* parse_statement(parser_t* p)
 {
 	statement_t* statement = (statement_t*)malloc(sizeof(statement_t));
+	statement->type = ST_EXPRESSION;
+	statement->value = parse_expression(p);
 	return statement;
 }
 
@@ -87,6 +136,8 @@ void parse(parser_t* p)
 	while (TT_EOF != tok) {
 		unget_token(p->t);
 		statement_t* statement = parse_statement(p);
+		list_insert(p->ast->statement_list, statement);
+		tok = get_token(p->t);
 	}
 }
 
@@ -108,9 +159,10 @@ static void parser_test2()
 {
 	parser_t* p = (parser_t*)malloc(sizeof(parser_t));
 	init_parser(p, "1+2");
-
-	//assert_int_equal();
-
+	p->ast->statement_list = create_list();
+	parse(p);
+	assert_int_equal(list_get_item_count(p->ast->statement_list), 1);
+	destroy_list(p->ast->statement_list);
 	release_parser(p);
 	free(p);
 }

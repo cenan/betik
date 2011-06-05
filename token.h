@@ -25,30 +25,41 @@
 #define MAX_STRING_LENGTH  1024
 
 typedef enum {
-	TT_NONE=     0,
-	TT_IDENT=    1,
-	TT_NUMBER=   2,
-	TT_STRING=   3,
-	TT_EOF=      4,
-	TT_UNKNOWN=  5,
-	TT_OP_AND=   10,
-	TT_OP_OR=    11,
-	TT_OP_ADD=   12,
-	TT_OP_SUB=   13,
-	TT_OP_MUL=   14,
-	TT_OP_DIV=   15,
-	TT_OP_COMMA= 16,
-	TT_OP_POPEN= 17,
-	TT_OP_PCLOSE=18,
-	TT_OP_BOPEN =19,
-	TT_OP_BCLOSE=20,
-	TT_OP_COPEN =21,
-	TT_OP_CCLOSE=22,
+	TT_NONE       =  0,
+	TT_IDENT      =  1,
+	TT_NUMBER     =  2,
+	TT_STRING     =  3,
+	TT_EOF        =  4,
+	TT_UNKNOWN    =  5,
 
-	TT_END      =30,
-	TT_IF       =31,
-	TT_WHILE    =32,
+	// binary operators
+	TT_OP_AND     = 10,
+	TT_OP_OR      = 11,
+	TT_OP_ADD     = 12,
+	TT_OP_SUB     = 13,
+	TT_OP_MUL     = 14,
+	TT_OP_DIV     = 15,
+
+	// unary operators
+	TT_OP_UNARYSUB= 20,
+
+	TT_OP_COMMA   = 30,
+	TT_OP_POPEN   = 31,
+	TT_OP_PCLOSE  = 32,
+	TT_OP_BOPEN   = 33,
+	TT_OP_BCLOSE  = 34,
+	TT_OP_COPEN   = 35,
+	TT_OP_CCLOSE  = 36,
+	TT_NOP        = 40,
+
+	// keywords
+	TT_END        = 50,
+	TT_IF         = 51,
+	TT_WHILE      = 52,
 } token_type_t;
+
+#define TOK_IS_BINARY_OP(t) (((t) >= 10) && ((t) < 20))
+#define TOK_IS_UNARY_OP(t)  ((((t) >= 20) && ((t) < 30)) || ((t) == TT_OP_SUB))
 
 typedef struct {
 	char* source;
