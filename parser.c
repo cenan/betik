@@ -18,7 +18,22 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "parser.h"
+
+static block_t* parse_block(parser_t* p);
+static expression_t* parse_expression(parser_t* p);
+static funcdef_t* parse_funcdef(parser_t* p);
+static statement_t* parse_statement(parser_t* p);
+static vardecl_t* parse_vardecl(parser_t* p);
+
+static void expect(parser_t* p, int expected_token)
+{
+	if (p->t->token_type != expected_token) {
+		fprintf(stderr, "expect failed on line %d, expecting %d found %d:%s\n", p->t->line_number, expected_token, p->t->token_type, (char*)(p->t->token_value));
+		exit(EXIT_FAILURE);
+	}
+}
 
 static int match(parser_t* p, token_type_t tok)
 {
@@ -93,6 +108,31 @@ static expression_t* parse_expression(parser_t* p)
 	return expression;
 }
 
+static funcdef_t* parse_funcdef(parser_t* p)
+{
+	funcdef_t* funcdef = (funcdef_t*)malloc(sizeof(funcdef_t));
+	funcdef->line_number = p->t->line_number;
+	match(p, TT_DEF);
+	match(p, TT_IDENT);
+	strcpy(funcdef->name, ((char*)(p->t->token_value)));
+	match(p, TT_OP_POPEN);
+
+	funcdef->parameters = create_list();
+
+	token_type_t tok = get_token(p->t);
+	if (TT_OP_PCLOSE != tok) {
+		unget_token(p->t);
+		do {
+			list_insert(funcdef->parameters, parse_vardecl(p));
+			get_token(p->t);
+		} while (TT_OP_COMMA == p->t->token_type);
+	}
+	expect(p, TT_OP_PCLOSE);
+	funcdef->block = parse_block(p);
+	match(p, TT_END);
+	return funcdef;
+}
+
 static statement_t* parse_statement(parser_t* p)
 {
 	statement_t* statement = (statement_t*)malloc(sizeof(statement_t));
@@ -101,8 +141,9 @@ static statement_t* parse_statement(parser_t* p)
 	return statement;
 }
 
-static void parse_block(parser_t* p)
+static block_t* parse_block(parser_t* p)
 {
+	block_t* block = (block_t*)malloc(sizeof(block_t));
 	token_type_t tok = get_token(p->t);
 	while (tok != TT_END) {
 		unget_token(p->t);
@@ -110,6 +151,7 @@ static void parse_block(parser_t* p)
 		tok = get_token(p->t);
 	}
 	unget_token(p->t);
+	return block;
 }
 
 static void parse_if(parser_t* p)
@@ -130,13 +172,28 @@ static void parse_while(parser_t* p)
 	match(p, TT_OP_CCLOSE);
 }
 
+static vardecl_t* parse_vardecl(parser_t* p)
+{
+	vardecl_t* vardecl = (vardecl_t*)malloc(sizeof(vardecl_t));
+	vardecl->type = get_token(p->t);
+	match(p, TT_IDENT);
+	strcpy(vardecl->name, (char*)(p->t->token_value));
+
+	return vardecl;
+}
+
 void parse(parser_t* p)
 {
 	token_type_t tok = get_token(p->t);
 	while (TT_EOF != tok) {
-		unget_token(p->t);
-		statement_t* statement = parse_statement(p);
-		list_insert(p->ast->statement_list, statement);
+		if (TT_DEF == tok) {
+			unget_token(p->t);
+			parse_funcdef(p);
+		} else {
+			unget_token(p->t);
+			statement_t* statement = parse_statement(p);
+			list_insert(p->ast->statement_list, statement);
+		}
 		tok = get_token(p->t);
 	}
 }
@@ -176,7 +233,7 @@ static int tester_expr_eval(expression_t* e)
 static void parser_test2()
 {
 	parser_t* p = (parser_t*)malloc(sizeof(parser_t));
-	init_parser(p, "100+200-600-20");
+	init_parser(p, "def asd() 100+200-600-20 end 100+321-121");
 	p->ast->statement_list = create_list();
 	parse(p);
 	
@@ -184,7 +241,7 @@ static void parser_test2()
 	
 	statement_t* s = list_get_item(p->ast->statement_list, 0);
 	expression_t* e = (expression_t*)s->value;
-	assert_int_equal(-320, tester_expr_eval(e));
+	assert_int_equal(300, tester_expr_eval(e));
 
 	destroy_list(p->ast->statement_list);
 	release_parser(p);
@@ -198,5 +255,4 @@ void parser_test_fixture(void)
 	run_test(parser_test2);
 	test_fixture_end();
 }
-
 

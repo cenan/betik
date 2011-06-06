@@ -57,6 +57,7 @@ static struct {
 	{"if",     TT_IF},
 	{"while",  TT_WHILE},
 	{"end",    TT_END},
+	{"def",    TT_DEF},
 };
 
 static struct { 
@@ -246,6 +247,7 @@ token_type_t get_token(tokenizer_t* t)
 	for (i = 0; i < sizeof(operators) / sizeof(operators[0]); i++) {
 		if (strncmp(operators[i].op, &t->source[t->source_index], strlen(operators[i].op)) == 0) {
 			t->source_index += strlen(operators[i].op);
+			t->token_type = operators[i].token;
 			return operators[i].token;
 		}
 	}

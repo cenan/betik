@@ -33,11 +33,23 @@ typedef enum {
 	VT_NUMBER
 } value_type_t;
 
+
+typedef struct {
+	list_t* statements;
+} block_t;
+
 typedef struct {
 	list_t* values;
 	list_t* binaryops;
 	list_t* unaryops;
 } expression_t;
+
+typedef struct {
+	char name[MAX_IDENT_LENGTH];
+	list_t* parameters;
+	block_t* block;
+	int line_number;
+} funcdef_t;
 
 typedef struct {
 	statement_type_t type;
@@ -48,6 +60,11 @@ typedef struct {
 	value_type_t type;
 	void* value;
 } value_t;
+
+typedef struct {
+	token_type_t type;
+	char name[MAX_IDENT_LENGTH];
+} vardecl_t;
 
 typedef struct {
 	list_t* statement_list;
