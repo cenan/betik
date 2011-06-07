@@ -26,6 +26,7 @@ static expression_t* parse_expression(parser_t* p);
 static funcdef_t* parse_funcdef(parser_t* p);
 static ifstatement_t* parse_if(parser_t* p)
 static statement_t* parse_statement(parser_t* p);
+static value_t* parse_value(parser_t* p);
 static vardecl_t* parse_vardecl(parser_t* p);
 static whilestatement_t* parse_while(parser_t* p);
 
@@ -59,18 +60,17 @@ void release_parser(parser_t* p)
 	free(p->t);
 }
 
-static value_t* parse_value(parser_t* p)
+static block_t* parse_block(parser_t* p)
 {
-	value_t* value = (value_t*)malloc(sizeof(value_t));
+	block_t* block = (block_t*)malloc(sizeof(block_t));
 	token_type_t tok = get_token(p->t);
-	if (tok = TT_NUMBER) {
-		value->type = VT_NUMBER;
-		value->value = (void*)(*(int*)(p->t->token_value));
-	} else {
-		fprintf(stderr, "unknown value type!!\n");
-		exit(EXIT_FAILURE);
+	while (tok != TT_END) {
+		unget_token(p->t);
+		parse_statement(p);
+		tok = get_token(p->t);
 	}
-	return value;
+	unget_token(p->t);
+	return block;
 }
 
 static expression_t* parse_expression(parser_t* p)
@@ -135,27 +135,6 @@ static funcdef_t* parse_funcdef(parser_t* p)
 	return funcdef;
 }
 
-static statement_t* parse_statement(parser_t* p)
-{
-	statement_t* statement = (statement_t*)malloc(sizeof(statement_t));
-	statement->type = ST_EXPRESSION;
-	statement->value = parse_expression(p);
-	return statement;
-}
-
-static block_t* parse_block(parser_t* p)
-{
-	block_t* block = (block_t*)malloc(sizeof(block_t));
-	token_type_t tok = get_token(p->t);
-	while (tok != TT_END) {
-		unget_token(p->t);
-		parse_statement(p);
-		tok = get_token(p->t);
-	}
-	unget_token(p->t);
-	return block;
-}
-
 static ifstatement_t* parse_if(parser_t* p)
 {
 	ifstatement_t* ifstatement = (ifstatement_t*)malloc(sizeof(ifstatement_t));
@@ -166,14 +145,26 @@ static ifstatement_t* parse_if(parser_t* p)
 	return ifstatement;
 }
 
-static whilestatement_t* parse_while(parser_t* p)
+static statement_t* parse_statement(parser_t* p)
 {
-	whilestatement_t* whilestmt = (whilestatement_t*)malloc(sizeof(whilestatement_t));
-	match(p, TT_WHILE);
-	whilestmt->expression = parse_expression(p);
-	whilestmt->block = parse_block(p);
-	match(p, TT_END);
-	return whilestmt;
+	statement_t* statement = (statement_t*)malloc(sizeof(statement_t));
+	statement->type = ST_EXPRESSION;
+	statement->value = parse_expression(p);
+	return statement;
+}
+
+static value_t* parse_value(parser_t* p)
+{
+	value_t* value = (value_t*)malloc(sizeof(value_t));
+	token_type_t tok = get_token(p->t);
+	if (tok = TT_NUMBER) {
+		value->type = VT_NUMBER;
+		value->value = (void*)(*(int*)(p->t->token_value));
+	} else {
+		fprintf(stderr, "unknown value type!!\n");
+		exit(EXIT_FAILURE);
+	}
+	return value;
 }
 
 static vardecl_t* parse_vardecl(parser_t* p)
@@ -184,6 +175,16 @@ static vardecl_t* parse_vardecl(parser_t* p)
 	strcpy(vardecl->name, (char*)(p->t->token_value));
 
 	return vardecl;
+}
+
+static whilestatement_t* parse_while(parser_t* p)
+{
+	whilestatement_t* whilestmt = (whilestatement_t*)malloc(sizeof(whilestatement_t));
+	match(p, TT_WHILE);
+	whilestmt->expression = parse_expression(p);
+	whilestmt->block = parse_block(p);
+	match(p, TT_END);
+	return whilestmt;
 }
 
 void parse(parser_t* p)
@@ -201,7 +202,7 @@ void parse(parser_t* p)
 		tok = get_token(p->t);
 	}
 }
-
+// unit tests {{{
 #include "seatest.h"
 
 static void parser_test1()
@@ -259,4 +260,6 @@ void parser_test_fixture(void)
 	run_test(parser_test2);
 	test_fixture_end();
 }
+
+// }}}
 
