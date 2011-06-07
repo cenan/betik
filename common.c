@@ -23,6 +23,15 @@
 
 #include "common.h"
 
+char* duplicate_string(char* str)
+{
+	assert(str);
+	char* result;
+	result = (char*)malloc(strlen(str) + 1);
+	strcpy(result, str);
+	return result;
+}
+
 #define STACK_SIZE 1024
 
 stack_t* create_stack(unsigned item_length)

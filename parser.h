@@ -30,7 +30,10 @@ typedef enum {
 
 typedef enum {
 	VT_EXPRESSION,
-	VT_NUMBER
+	VT_CNUMBER,
+	VT_CSTRING,
+	VT_FUNCCALL,
+	VT_IDENT
 } value_type_t;
 
 

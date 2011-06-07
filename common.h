@@ -19,6 +19,8 @@
 #ifndef common_h
 #define common_h
 
+char* duplicate_string(char* str);
+
 typedef struct {
 	int      top;
 	void*    buffer;

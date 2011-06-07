@@ -212,8 +212,25 @@ static value_t* parse_value(parser_t* p)
 	value_t* value = (value_t*)malloc(sizeof(value_t));
 	token_type_t tok = get_token(p->t);
 	if (tok = TT_NUMBER) {
-		value->type = VT_NUMBER;
+		value->type = VT_CNUMBER;
 		value->value = (void*)(*(int*)(p->t->token_value));
+	} else if (TT_STRING == tok) {
+		value->type = VT_CSTRING;
+		value->value = duplicate_string((char*)(p->t->token_value));
+	} else if (TT_IDENT == tok) {
+		tok = get_token(p->t);
+		if (TT_OP_POPEN == tok) {
+			unget_token(p->t); // (
+			unget_token(p->t); // IDENT
+			value->type = VT_FUNCCALL;
+			value->value = parse_funccall(p);
+		} else {
+			unget_token(p->t);
+			unget_token(p->t);
+			tok = get_token(p->t);
+			value->type = VT_IDENT;
+			value->value = duplicate_string((char*)(p->t->token_value));
+		}
 	} else {
 		fprintf(stderr, "unknown value type!!\n");
 		exit(EXIT_FAILURE);
