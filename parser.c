@@ -21,10 +21,12 @@
 #include <string.h>
 #include "parser.h"
 
+#define IS_END_OF_BLOCK_TOKEN(t) ((t == TT_END) || (t == TT_DEF) || (t == TT_EOF))
+
 static block_t* parse_block(parser_t* p);
 static expression_t* parse_expression(parser_t* p);
 static funcdef_t* parse_funcdef(parser_t* p);
-static ifstatement_t* parse_if(parser_t* p)
+static ifstatement_t* parse_if(parser_t* p);
 static statement_t* parse_statement(parser_t* p);
 static value_t* parse_value(parser_t* p);
 static vardecl_t* parse_vardecl(parser_t* p);
@@ -60,16 +62,31 @@ void release_parser(parser_t* p)
 	free(p->t);
 }
 
+
+static assignment_t* parse_assignment(parser_t* p)
+{
+	assignment_t* assignment = (assignment_t*)malloc(sizeof(assignment_t));
+	assignment->value = parse_value(p);
+	match(p, TT_OP_EQUAL);
+	assignment->expression = parse_expression(p);
+	return assignment;
+}
+
 static block_t* parse_block(parser_t* p)
 {
 	block_t* block = (block_t*)malloc(sizeof(block_t));
-	token_type_t tok = get_token(p->t);
-	while (tok != TT_END) {
-		unget_token(p->t);
-		parse_statement(p);
+	block->statements = create_list();
+	while (1) {
+		token_type_t tok;
 		tok = get_token(p->t);
+		if (IS_END_OF_BLOCK_TOKEN(tok)) {
+			unget_token(p->t);
+			break;
+		} else {
+			unget_token(p->t);
+			list_insert(block->statements, parse_statement(p));
+		}
 	}
-	unget_token(p->t);
 	return block;
 }
 
@@ -148,8 +165,19 @@ static ifstatement_t* parse_if(parser_t* p)
 static statement_t* parse_statement(parser_t* p)
 {
 	statement_t* statement = (statement_t*)malloc(sizeof(statement_t));
-	statement->type = ST_EXPRESSION;
-	statement->value = parse_expression(p);
+
+	token_type_t tok = get_token(p->t);
+	unget_token(p->t);
+	if (TT_IF == tok) {
+		statement->type = ST_IF;
+		statement->value = parse_if(p);
+	} else if (TT_WHILE == tok) {
+		statement->type = ST_WHILE;
+		statement->value = parse_while(p);
+	} else {
+		statement->type = ST_EXPRESSION;
+		statement->value = parse_expression(p);
+	}
 	return statement;
 }
 
@@ -242,7 +270,7 @@ static void parser_test2()
 	p->ast->statement_list = create_list();
 	parse(p);
 	
-	assert_int_equal(list_get_item_count(p->ast->statement_list), 1);
+	assert_int_equal(1, list_get_item_count(p->ast->statement_list));
 	
 	statement_t* s = list_get_item(p->ast->statement_list, 0);
 	expression_t* e = (expression_t*)s->value;

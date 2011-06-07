@@ -77,6 +77,11 @@ typedef struct {
 } whilestatement_t;
 
 typedef struct {
+	value_t* value;
+	expression_t* expression;
+} assignment_t;
+
+typedef struct {
 	list_t* statement_list;
 } ast_t;
 

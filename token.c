@@ -75,6 +75,7 @@ static struct {
 	{"]", TT_OP_BCLOSE},
 	{"{", TT_OP_COPEN},
 	{"}", TT_OP_CCLOSE},
+	{"=", TT_OP_EQUAL},
 };
 
 void init_tokenizer(tokenizer_t* t, char* source)
