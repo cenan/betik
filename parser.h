@@ -83,6 +83,7 @@ typedef struct {
 
 typedef struct {
 	list_t* statement_list;
+	list_t* function_list;
 } ast_t;
 
 typedef struct {

@@ -53,10 +53,14 @@ void init_parser(parser_t* p, char* source)
 	p->t = (tokenizer_t*)malloc(sizeof(tokenizer_t));
 	init_tokenizer(p->t, source);
 	p->ast = (ast_t*)malloc(sizeof(ast_t));
+	p->ast->statement_list = create_list();
+	p->ast->function_list = create_list();
 }
 
 void release_parser(parser_t* p)
 {
+	destroy_list(p->ast->function_list);
+	destroy_list(p->ast->statement_list);
 	free(p->ast);
 	release_tokenizer(p->t);
 	free(p->t);
@@ -221,7 +225,7 @@ void parse(parser_t* p)
 	while (TT_EOF != tok) {
 		if (TT_DEF == tok) {
 			unget_token(p->t);
-			parse_funcdef(p);
+			list_insert(p->ast->function_list, parse_funcdef(p));
 		} else {
 			unget_token(p->t);
 			statement_t* statement = parse_statement(p);
@@ -230,6 +234,7 @@ void parse(parser_t* p)
 		tok = get_token(p->t);
 	}
 }
+
 // unit tests {{{
 #include "seatest.h"
 
@@ -267,7 +272,6 @@ static void parser_test2()
 {
 	parser_t* p = (parser_t*)malloc(sizeof(parser_t));
 	init_parser(p, "def asd() 100+200-600-20 end 100+321-121");
-	p->ast->statement_list = create_list();
 	parse(p);
 	
 	assert_int_equal(1, list_get_item_count(p->ast->statement_list));
@@ -276,7 +280,6 @@ static void parser_test2()
 	expression_t* e = (expression_t*)s->value;
 	assert_int_equal(300, tester_expr_eval(e));
 
-	destroy_list(p->ast->statement_list);
 	release_parser(p);
 	free(p);
 }
