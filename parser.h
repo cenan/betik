@@ -52,6 +52,11 @@ typedef struct {
 } funcdef_t;
 
 typedef struct {
+	expression_t* expression;
+	block_t* block;
+} ifstatement_t;
+
+typedef struct {
 	statement_type_t type;
 	void* value;
 } statement_t;
@@ -65,6 +70,11 @@ typedef struct {
 	token_type_t type;
 	char name[MAX_IDENT_LENGTH];
 } vardecl_t;
+
+typedef struct {
+	expression_t* expression;
+	block_t* block;
+} whilestatement_t;
 
 typedef struct {
 	list_t* statement_list;

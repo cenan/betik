@@ -24,8 +24,10 @@
 static block_t* parse_block(parser_t* p);
 static expression_t* parse_expression(parser_t* p);
 static funcdef_t* parse_funcdef(parser_t* p);
+static ifstatement_t* parse_if(parser_t* p)
 static statement_t* parse_statement(parser_t* p);
 static vardecl_t* parse_vardecl(parser_t* p);
+static whilestatement_t* parse_while(parser_t* p);
 
 static void expect(parser_t* p, int expected_token)
 {
@@ -154,22 +156,24 @@ static block_t* parse_block(parser_t* p)
 	return block;
 }
 
-static void parse_if(parser_t* p)
+static ifstatement_t* parse_if(parser_t* p)
 {
+	ifstatement_t* ifstatement = (ifstatement_t*)malloc(sizeof(ifstatement_t));
 	match(p, TT_IF);
-	parse_expression(p);
-	parse_block(p);
+	ifstatement->expression = parse_expression(p);
+	ifstatement->block = parse_block(p);
+	match(p, TT_END);
+	return ifstatement;
 }
 
-static void parse_while(parser_t* p)
+static whilestatement_t* parse_while(parser_t* p)
 {
+	whilestatement_t* whilestmt = (whilestatement_t*)malloc(sizeof(whilestatement_t));
 	match(p, TT_WHILE);
-	match(p, TT_OP_POPEN);
-	parse_expression(p);
-	match(p, TT_OP_PCLOSE);
-	match(p, TT_OP_COPEN);
-	parse_block(p);
-	match(p, TT_OP_CCLOSE);
+	whilestmt->expression = parse_expression(p);
+	whilestmt->block = parse_block(p);
+	match(p, TT_END);
+	return whilestmt;
 }
 
 static vardecl_t* parse_vardecl(parser_t* p)
