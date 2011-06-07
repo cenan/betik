@@ -156,6 +156,28 @@ static funcdef_t* parse_funcdef(parser_t* p)
 	return funcdef;
 }
 
+static funccall_t* parse_funccall(parser_t* p)
+{
+	funccall_t* funccall = (funccall_t*)malloc(sizeof(funccall_t));
+	funccall->arguments = create_list();
+
+	match(p, TT_IDENT);
+	strcpy(funccall->function_name, (char*)(p->t->token_value));
+	match(p, TT_OP_POPEN);
+	token_type_t tok = get_token(p->t);
+	if (TT_OP_PCLOSE == tok) {
+		// empty parameter list
+		return funccall;
+	}
+	unget_token(p->t);
+	do {
+		list_insert(funccall->arguments, parse_expression(p));
+		tok = get_token(p->t);
+	} while (TT_OP_COMMA == tok);
+	expect(p, TT_OP_PCLOSE);
+	return funccall;
+}
+
 static ifstatement_t* parse_if(parser_t* p)
 {
 	ifstatement_t* ifstatement = (ifstatement_t*)malloc(sizeof(ifstatement_t));

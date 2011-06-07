@@ -45,6 +45,11 @@ typedef struct {
 } expression_t;
 
 typedef struct {
+	char function_name[MAX_IDENT_LENGTH];
+	list_t* arguments;
+} funccall_t;
+
+typedef struct {
 	char name[MAX_IDENT_LENGTH];
 	list_t* parameters;
 	block_t* block;
