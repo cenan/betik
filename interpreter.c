@@ -39,14 +39,6 @@ static void int_block(block_t* b)
 
 static int int_expression(expression_t* e)
 {
-	//printf("value count: %d\n", list_get_item_count(e->values));
-	//printf("bop count: %d\n", list_get_item_count(e->binaryops));
-	//printf("uop count: %d\n", list_get_item_count(e->unaryops));
-	//int i;
-	
-	//for (i = 0; i < list_get_item_count(e->values); i++) {
-	//	int_value(list_get_item(e->values, i));
-	//}
 	value_t* v0 = (value_t*)list_get_item(e->values, 0);
 	int ret;
 	if (VT_CNUMBER == v0->type) {

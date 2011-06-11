@@ -72,15 +72,6 @@ void release_parser(parser_t* p)
 }
 
 
-static assignment_t* parse_assignment(parser_t* p)
-{
-	assignment_t* assignment = (assignment_t*)malloc(sizeof(assignment_t));
-	assignment->value = parse_value(p);
-	match(p, TT_OP_EQUAL);
-	assignment->expression = parse_expression(p);
-	return assignment;
-}
-
 static block_t* parse_block(parser_t* p)
 {
 	block_t* block = (block_t*)malloc(sizeof(block_t));
