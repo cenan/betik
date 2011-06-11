@@ -271,6 +271,7 @@ void unget_token(tokenizer_t* t)
 	} while (t->source_index > prev_source_index);
 }
 
+#ifdef UNITTESTS
 #include "seatest.h"
 
 static void tokenizer_test1()
@@ -299,4 +300,6 @@ void tokenizer_test_fixture(void)
 	run_test(tokenizer_test1);
 	test_fixture_end();
 }
+
+#endif // UNITTESTS
 

@@ -281,6 +281,7 @@ void parse(parser_t* p)
 }
 
 // unit tests {{{
+#ifdef UNITTESTS
 #include "seatest.h"
 
 static void parser_test1()
@@ -336,6 +337,6 @@ void parser_test_fixture(void)
 	run_test(parser_test2);
 	test_fixture_end();
 }
-
+#endif // UNITTESTS
 // }}}
 

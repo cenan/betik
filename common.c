@@ -209,7 +209,8 @@ int list_get_item_count(list_t* list)
 	return list->item_count;
 }
 
-
+// unit tests {{{
+#ifdef UNITTESTS
 #include "seatest.h"
 
 static void stack_test()
@@ -272,4 +273,7 @@ void common_lib_test_fixture(void)
 	run_test(list_test);
 	test_fixture_end();
 }
+
+#endif // UNITTESTS
+// }}}
 

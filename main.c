@@ -16,12 +16,15 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdio.h>
 #include <stdlib.h>
 
-#include "seatest.h"
+#include "betik.h"
 #include "parser.h"
 #include "interpreter.h"
 
+#ifdef UNITTESTS
+#include "seatest.h"
 void common_lib_test_fixture(void);
 void tokenizer_test_fixture(void);
 void parser_test_fixture(void);
@@ -32,10 +35,36 @@ void all_unit_tests(void)
 	tokenizer_test_fixture();
 	parser_test_fixture();
 }
+#endif // UNITTESTS
 
 int main(int argc, char* argv[])
 {
+#ifdef UNITTESTS
 	run_tests(all_unit_tests);
+#else
+	char* src;
+	int i;
+
+	if (argc == 1) {
+		printf("usage: %s FILE\n", argv[0]);
+		return 2;
+	}
+	FILE* f = fopen(argv[1], "r");
+	fseek(f, 0, SEEK_END);
+	int filesize = ftell(f);
+	fseek(f, 0, SEEK_SET);
+	src = (char*)malloc(filesize);
+	fread(src, filesize, 1, f);
+	fclose(f);
+	parser_t* p = (parser_t*)malloc(sizeof(parser_t));
+	init_parser(p, src);
+	parse(p);
+	interpret(p);
+	release_parser(p);
+	free(p);
+
+	free(src);
+#endif
 	return 0;
 }
 
