@@ -61,12 +61,18 @@ static int int_expression(expression_t* e)
 	   		foo = (int)v->value;
 		} else if (VT_FUNCCALL == v->type) {
 			foo = int_funccall(v->value);
+		} else if (VT_EXPRESSION == v->type) {
+			foo = int_expression(v->value);
 		}
 		token_type_t tok = (token_type_t)list_get_item(e->binaryops, i-1);
 		if (TT_OP_ADD == tok) {
 			ret += foo;
 		} else if (TT_OP_SUB == tok) {
 			ret -= foo;
+		} else if (TT_OP_MUL == tok) {
+			ret *= foo;
+		} else if (TT_OP_DIV == tok) {
+			ret /= foo;
 		}
 	}
 	return ret;
