@@ -22,89 +22,186 @@
 #include "common.h"
 #include "interpreter.h"
 
-static void int_block(block_t* b);
-static int int_expression(expression_t* e);
-static int int_funccall(funccall_t* f);
-static void int_statement(statement_t* s);
-static int int_value(value_t* v);
+typedef enum {
+	OBJ_BASE,
+	OBJ_NUMBER,
+} object_type_t;
 
-static void int_block(block_t* b)
+typedef struct {
+	list_t* variables;
+} scope_t;
+
+typedef struct {
+	object_type_t type;
+	int reference_count;
+	void* data;
+} object_t;
+
+typedef struct {
+	char* name;
+	object_t* obj;
+} variable_t;
+
+typedef struct {
+	scope_t* global_scope;
+	scope_t* current_scope;
+} runtime_t;
+
+
+static scope_t* create_scope()
+{
+	scope_t* scope = (scope_t*)malloc(sizeof(scope_t));
+	scope->variables = create_list();
+	return scope;
+}
+
+static void destroy_scope(scope_t* s)
+{
+	destroy_list(s->variables);
+	free(s);
+}
+
+static variable_t* get_variable(runtime_t* rt, char* variable_name)
+{
+	int i;
+	for (i = 0; i < list_get_item_count(rt->current_scope->variables); i++) {
+		variable_t* var = list_get_item(rt->current_scope->variables, i);
+		if (strcmp(variable_name, var->name) == 0) {
+			return var;
+		}
+	}
+	return 0;
+}
+
+static variable_t* create_variable(runtime_t* rt, char* variable_name)
+{
+	variable_t* var = (variable_t*)malloc(sizeof(variable_t));
+	var->name = variable_name;
+	var->obj = 0;
+	list_insert(rt->current_scope->variables, var);
+
+	return var;
+}
+
+static object_t* create_object(object_type_t obj_type)
+{
+	object_t* obj = (object_t*)malloc(sizeof(object_t));
+
+	obj->type = obj_type;
+	obj->reference_count = 0;
+
+	return obj;
+}
+
+static variable_t* call_variable_op(runtime_t* rt, variable_t* var1, variable_t* var2, token_type_t tok)
+{
+	variable_t* var = create_variable(rt, "#");
+	var->obj = create_object(OBJ_NUMBER);
+	var->obj->reference_count += 1;
+	if (TT_OP_ADD == tok) {
+		var->obj->data = (void*)((int)var1->obj->data + (int)var2->obj->data);
+	} else if (TT_OP_SUB == tok) {
+		var->obj->data = (void*)((int)var1->obj->data - (int)var2->obj->data);
+	} else if (TT_OP_MUL == tok) {
+		var->obj->data = (void*)((int)var1->obj->data * (int)var2->obj->data);
+	} else if (TT_OP_DIV == tok) {
+		if (0 == (int)var2->obj->data) {
+			fprintf(stderr, "Division by zero\n");
+			exit(EXIT_FAILURE);
+		}
+		var->obj->data = (void*)((int)var1->obj->data / (int)var2->obj->data);
+	}
+	return var;
+}
+
+
+static void int_block(runtime_t* rt, block_t* b);
+static variable_t* int_expression(runtime_t* rt, expression_t* e);
+static variable_t*  int_funccall(runtime_t* rt, funccall_t* f);
+static void int_statement(runtime_t* rt, statement_t* s);
+static variable_t* int_value(runtime_t* rt, value_t* v);
+
+static void int_block(runtime_t* rt, block_t* b)
 {
 	int i;
 	
 	for (i = 0; i < list_get_item_count(b->statements); i++) {
-		int_statement(list_get_item(b->statements, i));
+		int_statement(rt, list_get_item(b->statements, i));
 	}
 }
 
-static int int_expression(expression_t* e)
+static variable_t* int_expression(runtime_t* rt, expression_t* e)
 {
 	value_t* v0 = (value_t*)list_get_item(e->values, 0);
-	int ret;
-	if (VT_CNUMBER == v0->type) {
-		ret = (int)v0->value;
-	} else if (VT_FUNCCALL == v0->type) {
-		ret = int_funccall(v0->value);
-	}
+	variable_t* var0 = int_value(rt, v0);
+	variable_t* var = var0;
 	int i;
 	for (i = 1; i < list_get_item_count(e->values); i++) {
-		value_t* v = (value_t*)list_get_item(e->values, i);
-		int foo;
-		if (VT_CNUMBER == v->type) {
-	   		foo = (int)v->value;
-		} else if (VT_FUNCCALL == v->type) {
-			foo = int_funccall(v->value);
-		} else if (VT_EXPRESSION == v->type) {
-			foo = int_expression(v->value);
-		}
+		value_t* v;
+		variable_t* var1;
+		v = (value_t*)list_get_item(e->values, i);
+		var1 = int_value(rt, v);
 		token_type_t tok = (token_type_t)list_get_item(e->binaryops, i-1);
-		if (TT_OP_ADD == tok) {
-			ret += foo;
-		} else if (TT_OP_SUB == tok) {
-			ret -= foo;
-		} else if (TT_OP_MUL == tok) {
-			ret *= foo;
-		} else if (TT_OP_DIV == tok) {
-			if (foo == 0) {
-				fprintf(stderr, "Division by zero on line %d\n", e->line_number);
-				exit(EXIT_FAILURE);
-			}
-			ret /= foo;
-		}
+		
+		var = call_variable_op(rt, var, var1, tok);
+		
 	}
-	return ret;
+	return var;
 }
 
-static int int_funccall(funccall_t* f)
+static variable_t* int_funccall(runtime_t* rt, funccall_t* f)
 {
-	int result;
+	variable_t* var;
 
+	var = create_variable(rt, "#");
+	var->obj = 0;
 	if (strcmp(f->function_name, "print") == 0) {
-		result = int_expression(list_get_item(f->arguments, 0));
-		printf("%d\n", result);
+		var = int_expression(rt, list_get_item(f->arguments, 0));
+		printf("%d\n", (int)var->obj->data);
 	}
+	return var;
 }
 
-static void int_statement(statement_t* s)
+static void int_statement(runtime_t* rt, statement_t* s)
 {
 	if (s->type == ST_EXPRESSION) {
-		int_expression(s->value);
+		int_expression(rt, s->value);
 	}
 }
 
-static int int_value(value_t* v)
+static variable_t* int_value(runtime_t* rt, value_t* v)
 {
-	if (VT_FUNCCALL == v->type) {
-		int_funccall(v->value);
+	variable_t* var;
+
+	if (VT_CNUMBER == v->type) {
+		var = create_variable(rt, "#");
+		var->obj = create_object(OBJ_NUMBER);
+		var->obj->reference_count += 1;
+		var->obj->data = v->value;
+	} else if (VT_FUNCCALL == v->type) {
+		return int_funccall(rt, v->value);
+	} else if (VT_EXPRESSION == v->type) {
+		return int_expression(rt, v->value);
+	} else if (VT_IDENT == v->type) {
+		var = get_variable(rt, (char*)v->value);
+		if (0 == var) {
+			var = create_variable(rt, (char*)v->value);
+		}
 	}
+	return var;
 }
 
 void interpret(parser_t* p)
 {
+	runtime_t* rt = (runtime_t*)malloc(sizeof(runtime_t));
+
+	rt->global_scope = create_scope();
+	rt->current_scope = rt->global_scope;
 	int i;
-	
 	for (i = 0; i < list_get_item_count(p->ast->statement_list); i++) {
-		int_statement(list_get_item(p->ast->statement_list, i));
+		int_statement(rt, list_get_item(p->ast->statement_list, i));
 	}
+	destroy_scope(rt->global_scope);
+	free(rt);
 }
 
