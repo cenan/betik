@@ -16,7 +16,11 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdlib.h>
+
 #include "seatest.h"
+#include "parser.h"
+#include "interpreter.h"
 
 void common_lib_test_fixture(void);
 void tokenizer_test_fixture(void);

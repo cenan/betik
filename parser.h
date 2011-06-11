@@ -99,5 +99,9 @@ typedef struct {
 	ast_t* ast;
 } parser_t;
 
+void init_parser(parser_t* p, char* source);
+void release_parser(parser_t* p);
+void parse(parser_t* p);
+
 #endif // parser_h
 

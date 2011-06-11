@@ -35,7 +35,12 @@ static whilestatement_t* parse_while(parser_t* p);
 static void expect(parser_t* p, int expected_token)
 {
 	if (p->t->token_type != expected_token) {
-		fprintf(stderr, "expect failed on line %d, expecting %d found %d:%s\n", p->t->line_number, expected_token, p->t->token_type, (char*)(p->t->token_value));
+		fprintf(stderr,
+				"expect failed on line %d, expecting %d found %d:%s\n",
+				p->t->line_number,
+				expected_token,
+				p->t->token_type,
+				(char*)(p->t->token_value));
 		exit(EXIT_FAILURE);
 	}
 }
@@ -190,6 +195,7 @@ static ifstatement_t* parse_if(parser_t* p)
 
 static statement_t* parse_statement(parser_t* p)
 {
+	//printf("parsing statement: %s\n", &p->t->source[p->t->source_index]);
 	statement_t* statement = (statement_t*)malloc(sizeof(statement_t));
 
 	token_type_t tok = get_token(p->t);
@@ -211,7 +217,7 @@ static value_t* parse_value(parser_t* p)
 {
 	value_t* value = (value_t*)malloc(sizeof(value_t));
 	token_type_t tok = get_token(p->t);
-	if (tok = TT_NUMBER) {
+	if (TT_NUMBER == tok) {
 		value->type = VT_CNUMBER;
 		value->value = (void*)(*(int*)(p->t->token_value));
 	} else if (TT_STRING == tok) {
