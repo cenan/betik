@@ -17,6 +17,7 @@
 */
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "common.h"
 #include "interpreter.h"
@@ -72,6 +73,10 @@ static int int_expression(expression_t* e)
 		} else if (TT_OP_MUL == tok) {
 			ret *= foo;
 		} else if (TT_OP_DIV == tok) {
+			if (foo == 0) {
+				fprintf(stderr, "Division by zero on line %d\n", e->line_number);
+				exit(EXIT_FAILURE);
+			}
 			ret /= foo;
 		}
 	}

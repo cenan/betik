@@ -45,6 +45,7 @@ typedef struct {
 	list_t* values;
 	list_t* binaryops;
 	list_t* unaryops;
+	int line_number;
 } expression_t;
 
 typedef struct {

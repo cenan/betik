@@ -105,6 +105,7 @@ static expression_t* parse_expression(parser_t* p)
 	expression->values = create_list();
 	expression->binaryops = create_list();
 	expression->unaryops = create_list();
+	expression->line_number = p->t->line_number;
 	while (1) {
 		token_type_t tok = get_token(p->t);
 		if (tok == TT_OP_POPEN) {
