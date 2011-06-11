@@ -53,9 +53,10 @@ int main(int argc, char* argv[])
 	fseek(f, 0, SEEK_END);
 	int filesize = ftell(f);
 	fseek(f, 0, SEEK_SET);
-	src = (char*)malloc(filesize);
+	src = (char*)malloc(filesize+1);
 	fread(src, filesize, 1, f);
 	fclose(f);
+	src[filesize] = '\0';
 	parser_t* p = (parser_t*)malloc(sizeof(parser_t));
 	init_parser(p, src);
 	parse(p);
