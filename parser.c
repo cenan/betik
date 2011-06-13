@@ -187,7 +187,6 @@ static ifstatement_t* parse_if(parser_t* p)
 
 static statement_t* parse_statement(parser_t* p)
 {
-	//printf("parsing statement: %s\n", &p->t->source[p->t->source_index]);
 	statement_t* statement = (statement_t*)malloc(sizeof(statement_t));
 
 	token_type_t tok = get_token(p->t);

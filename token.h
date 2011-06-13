@@ -40,6 +40,8 @@ typedef enum {
 	TT_OP_MUL     = 14,
 	TT_OP_DIV     = 15,
 	TT_OP_EQUAL   = 16,
+	TT_OP_GT      = 17,
+	TT_OP_LT      = 18,
 
 	// unary operators
 	TT_OP_UNARYSUB= 20,

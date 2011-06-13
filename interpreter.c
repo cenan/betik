@@ -110,6 +110,10 @@ static variable_t* call_variable_op(runtime_t* rt, variable_t* var1, variable_t*
 			exit(EXIT_FAILURE);
 		}
 		var->obj->data = (void*)((int)var1->obj->data / (int)var2->obj->data);
+	} else if (TT_OP_GT == tok) {
+		var->obj->data = (void*)((int)var1->obj->data > (int)var2->obj->data);
+	} else if (TT_OP_LT == tok) {
+		var->obj->data = (void*)((int)var1->obj->data < (int)var2->obj->data);
 	} else if (TT_OP_EQUAL == tok) {
 		var1->obj = var2->obj;
 		var2->obj->reference_count += 1;
@@ -123,6 +127,7 @@ static variable_t* int_expression(runtime_t* rt, expression_t* e);
 static variable_t*  int_funccall(runtime_t* rt, funccall_t* f);
 static void int_statement(runtime_t* rt, statement_t* s);
 static variable_t* int_value(runtime_t* rt, value_t* v);
+static void int_while(runtime_t* rt, whilestatement_t* ws);
 
 static void int_block(runtime_t* rt, block_t* b)
 {
@@ -169,6 +174,8 @@ static void int_statement(runtime_t* rt, statement_t* s)
 {
 	if (s->type == ST_EXPRESSION) {
 		int_expression(rt, s->value);
+	} else if (s->type == ST_WHILE) {
+		int_while(rt, s->value);
 	}
 }
 
@@ -192,6 +199,15 @@ static variable_t* int_value(runtime_t* rt, value_t* v)
 		}
 	}
 	return var;
+}
+
+static void int_while(runtime_t* rt, whilestatement_t* ws)
+{
+	variable_t* var = int_expression(rt, ws->expression);
+	while ((int)var->obj->data) {
+		int_block(rt, ws->block);
+		var = int_expression(rt, ws->expression);
+	}
 }
 
 void interpret(parser_t* p)
