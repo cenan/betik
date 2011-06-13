@@ -125,6 +125,7 @@ static variable_t* call_variable_op(runtime_t* rt, variable_t* var1, variable_t*
 static void int_block(runtime_t* rt, block_t* b);
 static variable_t* int_expression(runtime_t* rt, expression_t* e);
 static variable_t*  int_funccall(runtime_t* rt, funccall_t* f);
+static void int_if(runtime_t* rt, ifstatement_t* is);
 static void int_statement(runtime_t* rt, statement_t* s);
 static variable_t* int_value(runtime_t* rt, value_t* v);
 static void int_while(runtime_t* rt, whilestatement_t* ws);
@@ -170,12 +171,22 @@ static variable_t* int_funccall(runtime_t* rt, funccall_t* f)
 	return var;
 }
 
+static void int_if(runtime_t* rt, ifstatement_t* is)
+{
+	variable_t* var = int_expression(rt, is->expression);
+	if ((int)var->obj->data) {
+		int_block(rt, is->block);
+	}
+}
+
 static void int_statement(runtime_t* rt, statement_t* s)
 {
 	if (s->type == ST_EXPRESSION) {
 		int_expression(rt, s->value);
 	} else if (s->type == ST_WHILE) {
 		int_while(rt, s->value);
+	} else if (s->type == ST_IF) {
+		int_if(rt, s->value);
 	}
 }
 
