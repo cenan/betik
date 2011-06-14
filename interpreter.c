@@ -26,6 +26,7 @@
 typedef enum {
 	OBJ_BASE,
 	OBJ_NUMBER,
+	OBJ_STRING,
 } object_type_t;
 
 typedef struct {
@@ -176,7 +177,11 @@ static variable_t* int_funccall(runtime_t* rt, funccall_t* f)
 	var->obj = 0;
 	if (strcmp(f->function_name, "print") == 0) {
 		var = int_expression(rt, list_get_item(f->arguments, 0));
-		printf("%d\n", (int)var->obj->data);
+		if (OBJ_NUMBER == var->obj->type) {
+			printf("%d", (int)var->obj->data);
+		} else if (OBJ_STRING == var->obj->type) {
+			printf("%s", (char*)var->obj->data);
+		}
 		return var;
 	}
 	for (i = 0; i < list_get_item_count(rt->ast->function_list); i++) {
@@ -227,6 +232,11 @@ static variable_t* int_value(runtime_t* rt, value_t* v)
 	if (VT_CNUMBER == v->type) {
 		var = create_variable(rt, "#");
 		var->obj = create_object(OBJ_NUMBER);
+		var->obj->reference_count += 1;
+		var->obj->data = v->value;
+	} else if (VT_CSTRING == v->type) {
+		var = create_variable(rt, "#");
+		var->obj = create_object(OBJ_STRING);
 		var->obj->reference_count += 1;
 		var->obj->data = v->value;
 	} else if (VT_FUNCCALL == v->type) {
