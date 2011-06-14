@@ -86,6 +86,13 @@ const void* stack_pop(stack_t* s)
 	return ptr;
 }
 
+int stack_get_count(stack_t* s)
+{
+	assert(s);
+
+	return s->top;
+}
+
 
 list_t* create_list(void)
 {

@@ -31,7 +31,7 @@ stack_t* create_stack(unsigned item_length);
 void destroy_stack(stack_t* s);
 void stack_push(stack_t* s, void* item);
 const void* stack_pop(stack_t* s);
-
+int stack_get_count(stack_t* s);
 
 typedef struct _listitem_t {
 	void* data;

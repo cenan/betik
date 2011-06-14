@@ -43,6 +43,7 @@ typedef struct {
 } variable_t;
 
 typedef struct {
+	stack_t* scopes;
 	scope_t* global_scope;
 	scope_t* current_scope;
 } runtime_t;
@@ -66,6 +67,12 @@ static variable_t* get_variable(runtime_t* rt, char* variable_name)
 	int i;
 	for (i = 0; i < list_get_item_count(rt->current_scope->variables); i++) {
 		variable_t* var = list_get_item(rt->current_scope->variables, i);
+		if (strcmp(variable_name, var->name) == 0) {
+			return var;
+		}
+	}
+	for (i = 0; i < list_get_item_count(rt->global_scope->variables); i++) {
+		variable_t* var = list_get_item(rt->global_scope->variables, i);
 		if (strcmp(variable_name, var->name) == 0) {
 			return var;
 		}
@@ -225,13 +232,18 @@ void interpret(parser_t* p)
 {
 	runtime_t* rt = (runtime_t*)malloc(sizeof(runtime_t));
 
+	rt->scopes = create_stack(sizeof(scope_t));
 	rt->global_scope = create_scope();
 	rt->current_scope = rt->global_scope;
+	stack_push(rt->scopes, rt->current_scope);
 	int i;
 	for (i = 0; i < list_get_item_count(p->ast->statement_list); i++) {
 		int_statement(rt, list_get_item(p->ast->statement_list, i));
 	}
-	destroy_scope(rt->global_scope);
+	while (stack_get_count(rt->scopes) > 0) {
+		scope_t* sc = (scope_t*)stack_pop(rt->scopes);
+		destroy_scope(sc);
+	}
 	free(rt);
 }
 
