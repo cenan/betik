@@ -76,7 +76,6 @@ typedef struct {
 } value_t;
 
 typedef struct {
-	token_type_t type;
 	char name[MAX_IDENT_LENGTH];
 } vardecl_t;
 

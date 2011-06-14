@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "token.h"
 
@@ -82,8 +83,7 @@ static struct {
 
 void init_tokenizer(tokenizer_t* t, char* source)
 {
-	t->source = (char*)malloc(strlen(source) + 1);
-	strcpy(t->source, source);
+	t->source = duplicate_string(source);
 	t->source_index = 0;
 	t->index_stack = create_stack(sizeof(int));
 	t->token_value = NULL;
@@ -117,6 +117,7 @@ eatwhitespace_begin:
 			// or the only line is a comment line then
 			// we should check for an EOF
 			if (t->source[t->source_index] == '\0') {
+				printf("eol\n");
 				break;
 			}
 			t->source_index++;
@@ -144,7 +145,7 @@ eatwhitespace_begin:
 
 static void tokenize_number(tokenizer_t* t)
 {
-	t->token_type == TT_NUMBER;
+	t->token_type = TT_NUMBER;
 	t->token_value = malloc(sizeof(int));
 	(*(int*)(t->token_value)) = t->source[t->source_index++] - '0';
 	while (is_digit(t->source[t->source_index])) {

@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "common.h"
 #include "interpreter.h"
@@ -46,6 +47,7 @@ typedef struct {
 	stack_t* scopes;
 	scope_t* global_scope;
 	scope_t* current_scope;
+	ast_t* ast;
 } runtime_t;
 
 
@@ -168,12 +170,33 @@ static variable_t* int_expression(runtime_t* rt, expression_t* e)
 static variable_t* int_funccall(runtime_t* rt, funccall_t* f)
 {
 	variable_t* var;
+	int i, j;
 
 	var = create_variable(rt, "#");
 	var->obj = 0;
 	if (strcmp(f->function_name, "print") == 0) {
 		var = int_expression(rt, list_get_item(f->arguments, 0));
 		printf("%d\n", (int)var->obj->data);
+		return var;
+	}
+	for (i = 0; i < list_get_item_count(rt->ast->function_list); i++) {
+		funcdef_t* fd = list_get_item(rt->ast->function_list, i);
+		if (strcmp(f->function_name, fd->name) == 0) {
+			scope_t* sc = create_scope();
+			stack_push(rt->scopes, sc);
+			scope_t* prevsc = rt->current_scope;
+			rt->current_scope = sc;
+			for (j = 0; j < list_get_item_count(fd->parameters); j++) {
+				vardecl_t* vd = list_get_item(fd->parameters, j);
+				variable_t* va = create_variable(rt, vd->name);
+				variable_t* vtmp = int_expression(rt, list_get_item(f->arguments, j));
+				va->obj = vtmp->obj;
+			}
+			int_block(rt, fd->block);
+			destroy_scope(sc);
+			rt->current_scope = prevsc;
+			return var;
+		}
 	}
 	return var;
 }
@@ -232,10 +255,11 @@ void interpret(parser_t* p)
 {
 	runtime_t* rt = (runtime_t*)malloc(sizeof(runtime_t));
 
-	rt->scopes = create_stack(sizeof(scope_t));
+	rt->scopes = create_stack(sizeof(scope_t*));
 	rt->global_scope = create_scope();
 	rt->current_scope = rt->global_scope;
 	stack_push(rt->scopes, rt->current_scope);
+	rt->ast = p->ast;
 	int i;
 	for (i = 0; i < list_get_item_count(p->ast->statement_list); i++) {
 		int_statement(rt, list_get_item(p->ast->statement_list, i));

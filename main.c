@@ -43,18 +43,17 @@ int main(int argc, char* argv[])
 	run_tests(all_unit_tests);
 #else
 	char* src;
-	int i;
 
 	if (argc == 1) {
 		printf("usage: %s FILE\n", argv[0]);
 		return 2;
 	}
-	FILE* f = fopen(argv[1], "r");
+	FILE* f = fopen(argv[1], "rb");
 	fseek(f, 0, SEEK_END);
 	int filesize = ftell(f);
 	fseek(f, 0, SEEK_SET);
 	src = (char*)malloc(filesize+1);
-	fread(src, filesize, 1, f);
+	fread(src, 1, filesize, f);
 	fclose(f);
 	src[filesize] = '\0';
 	parser_t* p = (parser_t*)malloc(sizeof(parser_t));

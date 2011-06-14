@@ -67,6 +67,7 @@ void stack_push(stack_t* s, void* item)
 	assert(s);
 	assert(s->buffer);
 	assert(item);
+	assert(s->top < 1024);
 
 	unsigned char* ptr = (unsigned char*)s->buffer;
 	ptr += s->item_length * s->top;

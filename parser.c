@@ -238,8 +238,7 @@ static value_t* parse_value(parser_t* p)
 static vardecl_t* parse_vardecl(parser_t* p)
 {
 	vardecl_t* vardecl = (vardecl_t*)malloc(sizeof(vardecl_t));
-	vardecl->type = get_token(p->t);
-	match(p, TT_IDENT);
+	get_token(p->t);
 	strcpy(vardecl->name, (char*)(p->t->token_value));
 
 	return vardecl;
