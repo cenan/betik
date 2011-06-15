@@ -290,8 +290,8 @@ static int tester_expr_eval(expression_t* e)
 {
 	value_t* v0 = (value_t*)list_get_item(e->values, 0);
 	int ret = (int)v0->value;;
-	int i;
-	for (i = 1; i < list_get_item_count(e->values); i++) {
+
+	for (int i = 1; i < list_get_item_count(e->values); i++) {
 		value_t* v = (value_t*)list_get_item(e->values, i);
 		int foo = (int)v->value;
 		token_type_t tok = (token_type_t)list_get_item(e->binaryops, i-1);

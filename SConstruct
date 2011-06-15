@@ -7,6 +7,6 @@ objfiles = env.Object(srcfiles)
 unittests = ARGUMENTS.get('unittest', 0)
 if int(unittests):
 	env.Append(CCFLAGS = '-DUNITTESTS')
-env.Append(CCFLAGS = '-Wall')
+env.Append(CCFLAGS = '-Wall -std=c99')
 env.Program(target='betik', source=objfiles)
 

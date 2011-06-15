@@ -35,9 +35,7 @@ static void int_while(runtime_t* rt, whilestatement_t* ws);
 
 static void int_block(runtime_t* rt, block_t* b)
 {
-	int i;
-	
-	for (i = 0; i < list_get_item_count(b->statements); i++) {
+	for (int i = 0; i < list_get_item_count(b->statements); i++) {
 		int_statement(rt, list_get_item(b->statements, i));
 	}
 }
@@ -47,8 +45,8 @@ static variable_t* int_expression(runtime_t* rt, expression_t* e)
 	value_t* v0 = (value_t*)list_get_item(e->values, 0);
 	variable_t* var0 = int_value(rt, v0);
 	variable_t* var = var0;
-	int i;
-	for (i = 1; i < list_get_item_count(e->values); i++) {
+
+	for (int i = 1; i < list_get_item_count(e->values); i++) {
 		value_t* v;
 		variable_t* var1;
 		v = (value_t*)list_get_item(e->values, i);
@@ -64,7 +62,7 @@ static variable_t* int_expression(runtime_t* rt, expression_t* e)
 static variable_t* int_funccall(runtime_t* rt, funccall_t* f)
 {
 	variable_t* var;
-	int i, j;
+
 
 	var = create_variable(rt, "#");
 	var->obj = 0;
@@ -77,14 +75,14 @@ static variable_t* int_funccall(runtime_t* rt, funccall_t* f)
 		}
 		return var;
 	}
-	for (i = 0; i < list_get_item_count(rt->ast->function_list); i++) {
+	for (int i = 0; i < list_get_item_count(rt->ast->function_list); i++) {
 		funcdef_t* fd = list_get_item(rt->ast->function_list, i);
 		if (strcmp(f->function_name, fd->name) == 0) {
 			scope_t* sc = create_scope();
 			stack_push(rt->scopes, sc);
 			scope_t* prevsc = rt->current_scope;
 			rt->current_scope = sc;
-			for (j = 0; j < list_get_item_count(fd->parameters); j++) {
+			for (int j = 0; j < list_get_item_count(fd->parameters); j++) {
 				vardecl_t* vd = list_get_item(fd->parameters, j);
 				variable_t* va = create_variable(rt, vd->name);
 				variable_t* vtmp = int_expression(rt, list_get_item(f->arguments, j));
@@ -163,8 +161,8 @@ void interpret(parser_t* p)
 	rt->current_scope = rt->global_scope;
 	stack_push(rt->scopes, rt->current_scope);
 	rt->ast = p->ast;
-	int i;
-	for (i = 0; i < list_get_item_count(p->ast->statement_list); i++) {
+	
+	for (int i = 0; i < list_get_item_count(p->ast->statement_list); i++) {
 		int_statement(rt, list_get_item(p->ast->statement_list, i));
 	}
 	while (stack_get_count(rt->scopes) > 0) {
