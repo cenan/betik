@@ -59,13 +59,31 @@ static variable_t* int_expression(runtime_t* rt, expression_t* e)
 	return var;
 }
 
+static variable_t* call_funcdef(runtime_t* rt, funccall_t* f, funcdef_t* fd)
+{
+	variable_t* var = 0;
+
+	scope_t* sc = create_scope();
+	stack_push(rt->scopes, sc);
+	scope_t* prevsc = rt->current_scope;
+	rt->current_scope = sc;
+	for (int j = 0; j < list_get_item_count(fd->parameters); j++) {
+		vardecl_t* vd = list_get_item(fd->parameters, j);
+		variable_t* va = create_variable(rt, vd->name);
+		variable_t* vtmp = int_expression(rt, list_get_item(f->arguments, j));
+		va->obj = vtmp->obj;
+	}
+	int_block(rt, fd->block);
+	destroy_scope(sc);
+	stack_pop(rt->scopes);
+	rt->current_scope = prevsc;
+	return var;
+}
+
 static variable_t* int_funccall(runtime_t* rt, funccall_t* f)
 {
 	variable_t* var;
 
-
-	var = create_variable(rt, "#");
-	var->obj = 0;
 	if (strcmp(f->function_name, "print") == 0) {
 		var = int_expression(rt, list_get_item(f->arguments, 0));
 		if (OBJ_NUMBER == var->obj->type) {
@@ -78,23 +96,17 @@ static variable_t* int_funccall(runtime_t* rt, funccall_t* f)
 	for (int i = 0; i < list_get_item_count(rt->ast->function_list); i++) {
 		funcdef_t* fd = list_get_item(rt->ast->function_list, i);
 		if (strcmp(f->function_name, fd->name) == 0) {
-			scope_t* sc = create_scope();
-			stack_push(rt->scopes, sc);
-			scope_t* prevsc = rt->current_scope;
-			rt->current_scope = sc;
-			for (int j = 0; j < list_get_item_count(fd->parameters); j++) {
-				vardecl_t* vd = list_get_item(fd->parameters, j);
-				variable_t* va = create_variable(rt, vd->name);
-				variable_t* vtmp = int_expression(rt, list_get_item(f->arguments, j));
-				va->obj = vtmp->obj;
-			}
-			int_block(rt, fd->block);
-			destroy_scope(sc);
-			rt->current_scope = prevsc;
-			return var;
+			return call_funcdef(rt, f, fd);
 		}
 	}
-	return var;
+	var = get_variable(rt, f->function_name);
+	if (0 == var) {
+		fprintf(stderr, "no such function: %s\n", f->function_name);
+		exit(EXIT_FAILURE);
+	} else {
+		funcdef_t* fd = (funcdef_t*)var->obj->data;
+		return call_funcdef(rt, f, fd);
+	}
 }
 
 static void int_if(runtime_t* rt, ifstatement_t* is)
@@ -137,6 +149,16 @@ static variable_t* int_value(runtime_t* rt, value_t* v)
 	} else if (VT_IDENT == v->type) {
 		var = get_variable(rt, (char*)v->value);
 		if (0 == var) {
+			for (int i = 0; i < list_get_item_count(rt->ast->function_list); i++) {
+				funcdef_t* f = list_get_item(rt->ast->function_list, i);
+				if (strcmp((char*)v->value, f->name) == 0) {
+					var = create_variable(rt, (char*)v->value);
+					var->obj = create_object(OBJ_FUNCTION);
+					var->obj->reference_count = 1;
+					var->obj->data = f;
+					return var;
+				}
+			}
 			var = create_variable(rt, (char*)v->value);
 		}
 	}
