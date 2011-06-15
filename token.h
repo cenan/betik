@@ -66,7 +66,7 @@ typedef enum {
 #define TOK_IS_UNARY_OP(t)  ((((t) >= 20) && ((t) < 30)) || ((t) == TT_OP_SUB))
 
 typedef struct {
-	const char* source;
+	char* source;
 	int source_index;
 	stack_t* index_stack;
 	void* token_value;

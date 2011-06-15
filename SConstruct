@@ -1,6 +1,6 @@
 env = Environment(tools = ['mingw'])
 
-srcfiles = ['main.c','parser.c','token.c','common.c','interpreter.c']
+srcfiles = ['main.c','parser.c','token.c','common.c','interpreter.c','runtime.c']
 srcfiles = srcfiles + ['seatest.c']
 objfiles = env.Object(srcfiles)
 
