@@ -144,6 +144,12 @@ static variable_t* int_value(runtime_t* rt, value_t* v)
 		var->obj->data = v->value;
 	} else if (VT_FUNCCALL == v->type) {
 		return int_funccall(rt, v->value);
+	} else if (VT_INLINE_FUNC == v->type) {
+		var = create_variable(rt, "#");
+		var->obj = create_object(OBJ_FUNCTION);
+		var->obj->reference_count = 1;
+		var->obj->data = v->value;
+		return var;
 	} else if (VT_EXPRESSION == v->type) {
 		return int_expression(rt, v->value);
 	} else if (VT_IDENT == v->type) {

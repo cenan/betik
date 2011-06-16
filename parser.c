@@ -19,13 +19,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 #include "parser.h"
 
 #define IS_END_OF_BLOCK_TOKEN(t) ((t == TT_END) || (t == TT_DEF) || (t == TT_EOF))
 
 static block_t* parse_block(parser_t* p);
 static expression_t* parse_expression(parser_t* p);
-static funcdef_t* parse_funcdef(parser_t* p);
+static funcdef_t* parse_funcdef(parser_t* p, bool is_inline);
 static ifstatement_t* parse_if(parser_t* p);
 static statement_t* parse_statement(parser_t* p);
 static value_t* parse_value(parser_t* p);
@@ -128,13 +129,15 @@ static expression_t* parse_expression(parser_t* p)
 	return expression;
 }
 
-static funcdef_t* parse_funcdef(parser_t* p)
+static funcdef_t* parse_funcdef(parser_t* p, bool is_inline)
 {
 	funcdef_t* funcdef = (funcdef_t*)malloc(sizeof(funcdef_t));
 	funcdef->line_number = p->t->line_number;
 	match(p, TT_DEF);
-	match(p, TT_IDENT);
-	strcpy(funcdef->name, ((char*)(p->t->token_value)));
+	if (!is_inline) {
+		match(p, TT_IDENT);
+		strcpy(funcdef->name, ((char*)(p->t->token_value)));
+	}
 	match(p, TT_OP_POPEN);
 
 	funcdef->parameters = create_list();
@@ -214,6 +217,12 @@ static value_t* parse_value(parser_t* p)
 	} else if (TT_STRING == tok) {
 		value->type = VT_CSTRING;
 		value->value = duplicate_string((char*)(p->t->token_value));
+	} else if (TT_DEF == tok) {
+		value->type = VT_INLINE_FUNC;
+		unget_token(p->t);
+		funcdef_t* fd = parse_funcdef(p, true);
+		strcpy(fd->name, "#");
+		value->value = fd;
 	} else if (TT_IDENT == tok) {
 		tok = get_token(p->t);
 		if (TT_OP_POPEN == tok) {
@@ -260,7 +269,7 @@ void parse(parser_t* p)
 	while (TT_EOF != tok) {
 		if (TT_DEF == tok) {
 			unget_token(p->t);
-			list_insert(p->ast->function_list, parse_funcdef(p));
+			list_insert(p->ast->function_list, parse_funcdef(p, false));
 		} else {
 			unget_token(p->t);
 			statement_t* statement = parse_statement(p);

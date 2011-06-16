@@ -33,7 +33,8 @@ typedef enum {
 	VT_CNUMBER,
 	VT_CSTRING,
 	VT_FUNCCALL,
-	VT_IDENT
+	VT_IDENT,
+	VT_INLINE_FUNC,
 } value_type_t;
 
 
