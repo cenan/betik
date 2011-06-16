@@ -25,19 +25,24 @@
 #include "runtime.h"
 
 
-static void int_block(runtime_t* rt, block_t* b);
+static variable_t* int_block(runtime_t* rt, block_t* b);
 static variable_t* int_expression(runtime_t* rt, expression_t* e);
 static variable_t*  int_funccall(runtime_t* rt, funccall_t* f);
 static void int_if(runtime_t* rt, ifstatement_t* is);
-static void int_statement(runtime_t* rt, statement_t* s);
+static variable_t* int_statement(runtime_t* rt, statement_t* s);
 static variable_t* int_value(runtime_t* rt, value_t* v);
 static void int_while(runtime_t* rt, whilestatement_t* ws);
 
-static void int_block(runtime_t* rt, block_t* b)
+static variable_t* int_block(runtime_t* rt, block_t* b)
 {
+	variable_t* var = 0;
 	for (int i = 0; i < list_get_item_count(b->statements); i++) {
-		int_statement(rt, list_get_item(b->statements, i));
+		var = int_statement(rt, list_get_item(b->statements, i));
+		if (var != 0) {
+			return var;
+		}
 	}
+	return var;
 }
 
 static variable_t* int_expression(runtime_t* rt, expression_t* e)
@@ -73,7 +78,7 @@ static variable_t* call_funcdef(runtime_t* rt, funccall_t* f, funcdef_t* fd)
 		variable_t* vtmp = int_expression(rt, list_get_item(f->arguments, j));
 		va->obj = vtmp->obj;
 	}
-	int_block(rt, fd->block);
+	var = int_block(rt, fd->block);
 	destroy_scope(sc);
 	stack_pop(rt->scopes);
 	rt->current_scope = prevsc;
@@ -117,15 +122,19 @@ static void int_if(runtime_t* rt, ifstatement_t* is)
 	}
 }
 
-static void int_statement(runtime_t* rt, statement_t* s)
+static variable_t* int_statement(runtime_t* rt, statement_t* s)
 {
+	variable_t* v = 0;
 	if (s->type == ST_EXPRESSION) {
 		int_expression(rt, s->value);
 	} else if (s->type == ST_WHILE) {
 		int_while(rt, s->value);
 	} else if (s->type == ST_IF) {
 		int_if(rt, s->value);
+	} else if (s->type == ST_RETURN) {
+		var = int_expression(rt, s->value);
 	}
+	return var;
 }
 
 static variable_t* int_value(runtime_t* rt, value_t* v)

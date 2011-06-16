@@ -59,6 +59,7 @@ static struct {
 	{"while",  TT_WHILE},
 	{"end",    TT_END},
 	{"def",    TT_DEF},
+	{"return", TT_RETURN},
 };
 
 static struct { 

@@ -60,6 +60,7 @@ typedef enum {
 	TT_IF         = 51,
 	TT_WHILE      = 52,
 	TT_DEF        = 53,
+	TT_RETURN     = 54,
 } token_type_t;
 
 #define TOK_IS_BINARY_OP(t) (((t) >= 10) && ((t) < 20))
