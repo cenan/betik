@@ -73,7 +73,6 @@ static variable_t* call_funcdef(runtime_t* rt, funccall_t* f, funcdef_t* fd, sco
 	if (0 != scope) {
 		for (int i = 0; i < list_get_item_count(scope->variables); i++) {
 			list_insert(sc->variables, list_get_item(scope->variables, i));
-			variable_t* var = list_get_item(scope->variables, i);
 		}
 	}
 
@@ -116,9 +115,9 @@ static variable_t* int_funccall(runtime_t* rt, funccall_t* f)
 	if (strcmp(f->function_name, "print") == 0) {
 		var = int_expression(rt, list_get_item(f->arguments, 0));
 		if (OBJ_NUMBER == var->obj->type) {
-			printf("%d", (int)var->obj->data);
+			printf("%d\n", (int)var->obj->data);
 		} else if (OBJ_STRING == var->obj->type) {
-			printf("%s", (char*)var->obj->data);
+			printf("%s\n", (char*)var->obj->data);
 		}
 		return var;
 	}

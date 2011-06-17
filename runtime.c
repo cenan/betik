@@ -82,7 +82,24 @@ variable_t* call_variable_op(runtime_t* rt, variable_t* var1, variable_t* var2, 
 	var->obj = create_object(OBJ_NUMBER);
 	var->obj->reference_count += 1;
 	if (TT_OP_ADD == tok) {
-		var->obj->data = (void*)((int)var1->obj->data + (int)var2->obj->data);
+		if (var1->obj->type == OBJ_NUMBER) {
+			var->obj->data = (void*)((int)var1->obj->data + (int)var2->obj->data);
+		} else if (var1->obj->type == OBJ_STRING) {
+			var->obj->type = OBJ_STRING;
+			if (var2->obj->type == OBJ_STRING) {
+				char* tmp = (char*)malloc(strlen(var1->obj->data) + strlen(var2->obj->data) + 1);
+				strcpy(tmp, var1->obj->data);
+				strcat(tmp, var2->obj->data);
+				var->obj->data = tmp;
+			} else if (var2->obj->type == OBJ_NUMBER) {
+				char* tmp = (char*)malloc(strlen(var1->obj->data) + 16);
+				strcpy(tmp, var1->obj->data);
+				char tmp2[16];
+				sprintf(tmp2, "%d", (int)var2->obj->data);
+				strcat(tmp, tmp2);
+				var->obj->data = tmp;
+			}
+		}
 	} else if (TT_OP_SUB == tok) {
 		var->obj->data = (void*)((int)var1->obj->data - (int)var2->obj->data);
 	} else if (TT_OP_MUL == tok) {
