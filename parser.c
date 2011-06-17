@@ -202,7 +202,7 @@ static statement_t* parse_statement(parser_t* p)
 		statement->value = parse_while(p);
 	} else if (TT_RETURN == tok) {
 		statement->type = ST_RETURN;
-		match(p->t, TT_RETURN);
+		match(p, TT_RETURN);
 		statement->value = parse_expression(p);
 	} else {
 		statement->type = ST_EXPRESSION;

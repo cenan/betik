@@ -64,14 +64,26 @@ static variable_t* int_expression(runtime_t* rt, expression_t* e)
 	return var;
 }
 
-static variable_t* call_funcdef(runtime_t* rt, funccall_t* f, funcdef_t* fd)
+static variable_t* call_funcdef(runtime_t* rt, funccall_t* f, funcdef_t* fd, scope_t* scope)
 {
 	variable_t* var = 0;
 
 	scope_t* sc = create_scope();
+
+	if (0 != scope) {
+		for (int i = 0; i < list_get_item_count(scope->variables); i++) {
+			list_insert(sc->variables, list_get_item(scope->variables, i));
+		}
+	}
+
 	stack_push(rt->scopes, sc);
 	scope_t* prevsc = rt->current_scope;
 	rt->current_scope = sc;
+
+	if (list_get_item_count(fd->parameters) != list_get_item_count(f->arguments)) {
+		fprintf(stderr, "argument count mismatch\n");
+		exit(EXIT_FAILURE);
+	}
 	for (int j = 0; j < list_get_item_count(fd->parameters); j++) {
 		vardecl_t* vd = list_get_item(fd->parameters, j);
 		variable_t* va = create_variable(rt, vd->name);
@@ -79,9 +91,14 @@ static variable_t* call_funcdef(runtime_t* rt, funccall_t* f, funcdef_t* fd)
 		va->obj = vtmp->obj;
 	}
 	var = int_block(rt, fd->block);
-	destroy_scope(sc);
+
+	sc->reference_count -= 1;
+	if (sc->reference_count == 0) {
+		destroy_scope(sc);
+	}
 	stack_pop(rt->scopes);
 	rt->current_scope = prevsc;
+
 	return var;
 }
 
@@ -101,7 +118,7 @@ static variable_t* int_funccall(runtime_t* rt, funccall_t* f)
 	for (int i = 0; i < list_get_item_count(rt->ast->function_list); i++) {
 		funcdef_t* fd = list_get_item(rt->ast->function_list, i);
 		if (strcmp(f->function_name, fd->name) == 0) {
-			return call_funcdef(rt, f, fd);
+			return call_funcdef(rt, f, fd, 0);
 		}
 	}
 	var = get_variable(rt, f->function_name);
@@ -110,7 +127,8 @@ static variable_t* int_funccall(runtime_t* rt, funccall_t* f)
 		exit(EXIT_FAILURE);
 	} else {
 		funcdef_t* fd = (funcdef_t*)var->obj->data;
-		return call_funcdef(rt, f, fd);
+		scope_t* scope = (scope_t*)var->obj->scope;
+		return call_funcdef(rt, f, fd, scope);
 	}
 }
 
@@ -124,7 +142,7 @@ static void int_if(runtime_t* rt, ifstatement_t* is)
 
 static variable_t* int_statement(runtime_t* rt, statement_t* s)
 {
-	variable_t* v = 0;
+	variable_t* var = 0;
 	if (s->type == ST_EXPRESSION) {
 		int_expression(rt, s->value);
 	} else if (s->type == ST_WHILE) {
@@ -158,6 +176,8 @@ static variable_t* int_value(runtime_t* rt, value_t* v)
 		var->obj = create_object(OBJ_FUNCTION);
 		var->obj->reference_count = 1;
 		var->obj->data = v->value;
+		var->obj->scope = rt->current_scope;
+		rt->current_scope->reference_count += 1;
 		return var;
 	} else if (VT_EXPRESSION == v->type) {
 		return int_expression(rt, v->value);

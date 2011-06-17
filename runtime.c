@@ -26,6 +26,7 @@ scope_t* create_scope()
 {
 	scope_t* scope = (scope_t*)malloc(sizeof(scope_t));
 	scope->variables = create_list();
+	scope->reference_count = 1;
 	return scope;
 }
 
@@ -69,6 +70,8 @@ object_t* create_object(object_type_t obj_type)
 
 	obj->type = obj_type;
 	obj->reference_count = 0;
+	obj->data = 0;
+	obj->scope = 0;
 
 	return obj;
 }

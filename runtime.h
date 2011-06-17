@@ -32,12 +32,14 @@ typedef enum {
 
 typedef struct {
 	list_t* variables;
+	int reference_count;
 } scope_t;
 
 typedef struct {
 	object_type_t type;
 	int reference_count;
 	void* data;
+	scope_t* scope;
 } object_t;
 
 typedef struct {
