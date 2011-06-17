@@ -108,17 +108,22 @@ static variable_t* call_funcdef(runtime_t* rt, funccall_t* f, funcdef_t* fd, sco
 	return var;
 }
 
+static void do_print(variable_t* var)
+{
+	if (OBJ_NUMBER == var->obj->type) {
+		printf("%d\n", (int)var->obj->data);
+	} else if (OBJ_STRING == var->obj->type) {
+		printf("%s\n", (char*)var->obj->data);
+	}
+}
+
 static variable_t* int_funccall(runtime_t* rt, funccall_t* f)
 {
 	variable_t* var;
 
 	if (strcmp(f->function_name, "print") == 0) {
 		var = int_expression(rt, list_get_item(f->arguments, 0));
-		if (OBJ_NUMBER == var->obj->type) {
-			printf("%d\n", (int)var->obj->data);
-		} else if (OBJ_STRING == var->obj->type) {
-			printf("%s\n", (char*)var->obj->data);
-		}
+		do_print(var);
 		return var;
 	}
 	for (int i = 0; i < list_get_item_count(rt->ast->function_list); i++) {
@@ -157,6 +162,8 @@ static variable_t* int_statement(runtime_t* rt, statement_t* s)
 		int_if(rt, s->value);
 	} else if (s->type == ST_RETURN) {
 		var = int_expression(rt, s->value);
+	} else if (s->type == ST_PRINT) {
+		do_print(int_expression(rt, s->value));
 	}
 	return var;
 }

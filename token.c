@@ -60,6 +60,7 @@ static struct {
 	{"end",    TT_END},
 	{"def",    TT_DEF},
 	{"return", TT_RETURN},
+	{"print",  TT_PRINT},
 };
 
 static struct { 

@@ -204,6 +204,10 @@ static statement_t* parse_statement(parser_t* p)
 		statement->type = ST_RETURN;
 		match(p, TT_RETURN);
 		statement->value = parse_expression(p);
+	} else if (TT_PRINT == tok) {
+		statement->type = ST_PRINT;
+		match(p, TT_PRINT);
+		statement->value = parse_expression(p);
 	} else {
 		statement->type = ST_EXPRESSION;
 		statement->value = parse_expression(p);

@@ -26,7 +26,8 @@ typedef enum {
 	ST_EXPRESSION,
 	ST_IF,
 	ST_WHILE,
-	ST_RETURN
+	ST_RETURN,
+	ST_PRINT
 } statement_type_t;
 
 typedef enum {
