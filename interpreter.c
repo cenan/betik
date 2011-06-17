@@ -73,6 +73,7 @@ static variable_t* call_funcdef(runtime_t* rt, funccall_t* f, funcdef_t* fd, sco
 	if (0 != scope) {
 		for (int i = 0; i < list_get_item_count(scope->variables); i++) {
 			list_insert(sc->variables, list_get_item(scope->variables, i));
+			variable_t* var = list_get_item(scope->variables, i);
 		}
 	}
 
@@ -87,7 +88,13 @@ static variable_t* call_funcdef(runtime_t* rt, funccall_t* f, funcdef_t* fd, sco
 	for (int j = 0; j < list_get_item_count(fd->parameters); j++) {
 		vardecl_t* vd = list_get_item(fd->parameters, j);
 		variable_t* va = create_variable(rt, vd->name);
+		
+		scope_t* tmpscope;
+		tmpscope = rt->current_scope;
+		rt->current_scope = prevsc;
 		variable_t* vtmp = int_expression(rt, list_get_item(f->arguments, j));
+		rt->current_scope = tmpscope;
+
 		va->obj = vtmp->obj;
 	}
 	var = int_block(rt, fd->block);
