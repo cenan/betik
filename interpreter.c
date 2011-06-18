@@ -28,10 +28,10 @@
 static variable_t* int_block(runtime_t* rt, block_t* b);
 static variable_t* int_expression(runtime_t* rt, expression_t* e);
 static variable_t*  int_funccall(runtime_t* rt, funccall_t* f);
-static void int_if(runtime_t* rt, ifstatement_t* is);
+static variable_t* int_if(runtime_t* rt, ifstatement_t* is);
 static variable_t* int_statement(runtime_t* rt, statement_t* s);
 static variable_t* int_value(runtime_t* rt, value_t* v);
-static void int_while(runtime_t* rt, whilestatement_t* ws);
+static variable_t* int_while(runtime_t* rt, whilestatement_t* ws);
 
 static variable_t* int_block(runtime_t* rt, block_t* b)
 {
@@ -143,12 +143,14 @@ static variable_t* int_funccall(runtime_t* rt, funccall_t* f)
 	}
 }
 
-static void int_if(runtime_t* rt, ifstatement_t* is)
+static variable_t* int_if(runtime_t* rt, ifstatement_t* is)
 {
 	variable_t* var = int_expression(rt, is->expression);
+	variable_t* rv = 0;
 	if ((int)var->obj->data) {
-		int_block(rt, is->block);
+		rv = int_block(rt, is->block);
 	}
+	return rv;
 }
 
 static variable_t* int_statement(runtime_t* rt, statement_t* s)
@@ -157,9 +159,9 @@ static variable_t* int_statement(runtime_t* rt, statement_t* s)
 	if (s->type == ST_EXPRESSION) {
 		int_expression(rt, s->value);
 	} else if (s->type == ST_WHILE) {
-		int_while(rt, s->value);
+		var = int_while(rt, s->value);
 	} else if (s->type == ST_IF) {
-		int_if(rt, s->value);
+		var = int_if(rt, s->value);
 	} else if (s->type == ST_RETURN) {
 		var = int_expression(rt, s->value);
 	} else if (s->type == ST_PRINT) {
@@ -213,13 +215,19 @@ static variable_t* int_value(runtime_t* rt, value_t* v)
 	return var;
 }
 
-static void int_while(runtime_t* rt, whilestatement_t* ws)
+static variable_t* int_while(runtime_t* rt, whilestatement_t* ws)
 {
 	variable_t* var = int_expression(rt, ws->expression);
+	variable_t* rv = 0;
+
 	while ((int)var->obj->data) {
-		int_block(rt, ws->block);
+		rv = int_block(rt, ws->block);
+		if (rv != 0) {
+			return rv;
+		}
 		var = int_expression(rt, ws->expression);
 	}
+	return rv;
 }
 
 void interpret(parser_t* p)

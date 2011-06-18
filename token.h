@@ -42,9 +42,9 @@ typedef enum {
 	TT_OP_ASSIGN  = 16,
 	TT_OP_GT      = 17,
 	TT_OP_LT      = 18,
-	TT_OP_GTE     = 18,
-	TT_OP_LTE     = 19,
-	TT_OP_EQUAL   = 20,
+	TT_OP_GTE     = 19,
+	TT_OP_LTE     = 20,
+	TT_OP_EQUAL   = 21,
 
 	// unary operators
 	TT_OP_UNARYSUB= 30,
