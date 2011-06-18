@@ -121,6 +121,13 @@ static expression_t* parse_expression(parser_t* p)
 		tok = get_token(p->t);
 		if (TOK_IS_BINARY_OP(tok)) {
 			list_insert(expression->binaryops, (void*)tok);
+			if (TT_OP_ASSIGN == tok) {
+				value_t* value = (value_t*)malloc(sizeof(value_t));
+				value->type = VT_EXPRESSION;
+				value->value = parse_expression(p);
+				list_insert(expression->values, value);
+				break;
+			}
 		} else {
 			unget_token(p->t);
 			break;

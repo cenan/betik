@@ -54,6 +54,7 @@ static variable_t* int_expression(runtime_t* rt, expression_t* e)
 	for (int i = 1; i < list_get_item_count(e->values); i++) {
 		value_t* v;
 		variable_t* var1;
+
 		v = (value_t*)list_get_item(e->values, i);
 		var1 = int_value(rt, v);
 		token_type_t tok = (token_type_t)list_get_item(e->binaryops, i-1);
