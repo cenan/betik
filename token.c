@@ -78,7 +78,8 @@ static struct {
 	{"]", TT_OP_BCLOSE},
 	{"{", TT_OP_COPEN},
 	{"}", TT_OP_CCLOSE},
-	{"=", TT_OP_EQUAL},
+	{"==", TT_OP_EQUAL},
+	{"=", TT_OP_ASSIGN},
 	{">", TT_OP_GT},
 	{"<", TT_OP_LT},
 };
