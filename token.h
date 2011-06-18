@@ -42,31 +42,33 @@ typedef enum {
 	TT_OP_ASSIGN  = 16,
 	TT_OP_GT      = 17,
 	TT_OP_LT      = 18,
-	TT_OP_EQUAL   = 19,
+	TT_OP_GTE     = 18,
+	TT_OP_LTE     = 19,
+	TT_OP_EQUAL   = 20,
 
 	// unary operators
-	TT_OP_UNARYSUB= 20,
+	TT_OP_UNARYSUB= 30,
 
-	TT_OP_COMMA   = 30,
-	TT_OP_POPEN   = 31,
-	TT_OP_PCLOSE  = 32,
-	TT_OP_BOPEN   = 33,
-	TT_OP_BCLOSE  = 34,
-	TT_OP_COPEN   = 35,
-	TT_OP_CCLOSE  = 36,
-	TT_NOP        = 40,
+	TT_OP_COMMA   = 40,
+	TT_OP_POPEN   = 41,
+	TT_OP_PCLOSE  = 42,
+	TT_OP_BOPEN   = 43,
+	TT_OP_BCLOSE  = 44,
+	TT_OP_COPEN   = 45,
+	TT_OP_CCLOSE  = 46,
+	TT_NOP        = 50,
 
 	// keywords
-	TT_END        = 50,
-	TT_IF         = 51,
-	TT_WHILE      = 52,
-	TT_DEF        = 53,
-	TT_RETURN     = 54,
-	TT_PRINT      = 55,
+	TT_END        = 80,
+	TT_IF         = 81,
+	TT_WHILE      = 82,
+	TT_DEF        = 83,
+	TT_RETURN     = 84,
+	TT_PRINT      = 85,
 } token_type_t;
 
-#define TOK_IS_BINARY_OP(t) (((t) >= 10) && ((t) < 20))
-#define TOK_IS_UNARY_OP(t)  ((((t) >= 20) && ((t) < 30)) || ((t) == TT_OP_SUB))
+#define TOK_IS_BINARY_OP(t) (((t) >= 10) && ((t) < 30))
+#define TOK_IS_UNARY_OP(t)  ((((t) >= 30) && ((t) < 40)) || ((t) == TT_OP_SUB))
 
 typedef struct {
 	char* source;

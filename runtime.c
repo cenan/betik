@@ -112,8 +112,12 @@ variable_t* call_variable_op(runtime_t* rt, variable_t* var1, variable_t* var2, 
 		var->obj->data = (void*)((int)var1->obj->data / (int)var2->obj->data);
 	} else if (TT_OP_GT == tok) {
 		var->obj->data = (void*)((int)var1->obj->data > (int)var2->obj->data);
+	} else if (TT_OP_GTE == tok) {
+		var->obj->data = (void*)((int)var1->obj->data >= (int)var2->obj->data);
 	} else if (TT_OP_LT == tok) {
 		var->obj->data = (void*)((int)var1->obj->data < (int)var2->obj->data);
+	} else if (TT_OP_LTE == tok) {
+		var->obj->data = (void*)((int)var1->obj->data <= (int)var2->obj->data);
 	} else if (TT_OP_EQUAL == tok) {
 		var->obj->data = (void*)((int)var1->obj->data == (int)var2->obj->data);
 	} else if (TT_OP_ASSIGN == tok) {
