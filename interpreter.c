@@ -127,6 +127,13 @@ static variable_t* int_funccall(runtime_t* rt, funccall_t* f)
 		do_print(var);
 		return var;
 	}
+	if (strcmp(f->function_name, "env") == 0) {
+		var = int_expression(rt, list_get_item(f->arguments, 0));
+		variable_t* v = create_variable(rt, "#");
+		v->obj = create_object(OBJ_STRING);
+		v->obj->data = getenv(var->obj->data);
+		return v;
+	}
 	for (int i = 0; i < list_get_item_count(rt->ast->function_list); i++) {
 		funcdef_t* fd = list_get_item(rt->ast->function_list, i);
 		if (strcmp(f->function_name, fd->name) == 0) {
