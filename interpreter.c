@@ -192,6 +192,21 @@ static variable_t* int_value(runtime_t* rt, value_t* v)
 		var->obj = create_object(OBJ_STRING);
 		var->obj->reference_count += 1;
 		var->obj->data = v->value;
+	} else if (VT_LIST == v->type) {
+		var = create_variable(rt, "#");
+		var->obj = create_object(OBJ_LIST);
+		var->obj->reference_count += 1;
+		var->obj->data = v->value;
+	} else if (VT_LISTINDEX == v->type) {
+		listindex_t* listindex = (listindex_t*)v->value;
+		var = get_variable(rt, listindex->name);
+		if (0 == var) {
+		} else {
+			variable_t* v = int_expression(rt, listindex->index);
+			if (OBJ_NUMBER == v->obj->type) {
+				return int_value(rt, list_get_item(var->obj->data, (int)v->obj->data));
+			}
+		}
 	} else if (VT_FUNCCALL == v->type) {
 		return int_funccall(rt, v->value);
 	} else if (VT_INLINE_FUNC == v->type) {

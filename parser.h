@@ -37,6 +37,8 @@ typedef enum {
 	VT_FUNCCALL,
 	VT_IDENT,
 	VT_INLINE_FUNC,
+	VT_LIST,
+	VT_LISTINDEX,
 } value_type_t;
 
 
@@ -67,6 +69,11 @@ typedef struct {
 	expression_t* expression;
 	block_t* block;
 } ifstatement_t;
+
+typedef struct {
+	char* name;
+	expression_t* index;
+} listindex_t;
 
 typedef struct {
 	statement_type_t type;

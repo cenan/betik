@@ -28,6 +28,7 @@ static block_t* parse_block(parser_t* p);
 static expression_t* parse_expression(parser_t* p);
 static funcdef_t* parse_funcdef(parser_t* p, bool is_inline);
 static ifstatement_t* parse_if(parser_t* p);
+static list_t* parse_list(parser_t* p);
 static statement_t* parse_statement(parser_t* p);
 static value_t* parse_value(parser_t* p);
 static vardecl_t* parse_vardecl(parser_t* p);
@@ -195,6 +196,24 @@ static ifstatement_t* parse_if(parser_t* p)
 	return ifstatement;
 }
 
+static list_t* parse_list(parser_t* p)
+{
+	list_t* list = create_list();
+
+	match(p, TT_OP_BOPEN);
+	token_type_t tok = get_token(p->t);
+	while (TT_OP_BCLOSE != tok) {
+		unget_token(p->t);
+		list_insert(list, parse_value(p));
+		tok = get_token(p->t);
+		if (TT_OP_BCLOSE == tok) {
+			break;
+		}
+		match(p, TT_OP_COMMA);
+	}
+	return list;
+}
+
 static statement_t* parse_statement(parser_t* p)
 {
 	statement_t* statement = (statement_t*)malloc(sizeof(statement_t));
@@ -238,6 +257,10 @@ static value_t* parse_value(parser_t* p)
 		funcdef_t* fd = parse_funcdef(p, true);
 		strcpy(fd->name, "#");
 		value->value = fd;
+	} else if (TT_OP_BOPEN == tok) {
+		value->type = VT_LIST;
+		unget_token(p->t);
+		value->value = parse_list(p);
 	} else if (TT_IDENT == tok) {
 		tok = get_token(p->t);
 		if (TT_OP_POPEN == tok) {
@@ -245,6 +268,17 @@ static value_t* parse_value(parser_t* p)
 			unget_token(p->t); // IDENT
 			value->type = VT_FUNCCALL;
 			value->value = parse_funccall(p);
+		} else if (TT_OP_BOPEN == tok) {
+			unget_token(p->t);
+			unget_token(p->t);
+			tok = get_token(p->t);
+			listindex_t* listindex = (listindex_t*)malloc(sizeof(listindex_t));
+			listindex->name = duplicate_string((char*)(p->t->token_value));
+			value->type = VT_LISTINDEX;
+			match(p, TT_OP_BOPEN);
+			value->value = listindex;
+			listindex->index = parse_expression(p);
+			match(p, TT_OP_BCLOSE);
 		} else {
 			unget_token(p->t);
 			unget_token(p->t);
@@ -253,7 +287,7 @@ static value_t* parse_value(parser_t* p)
 			value->value = duplicate_string((char*)(p->t->token_value));
 		}
 	} else {
-		fprintf(stderr, "unknown value type!!\n");
+		fprintf(stderr, "unknown value type:%d\n", tok);
 		exit(EXIT_FAILURE);
 	}
 	return value;

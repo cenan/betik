@@ -28,6 +28,7 @@ typedef enum {
 	OBJ_NUMBER,
 	OBJ_STRING,
 	OBJ_FUNCTION,
+	OBJ_LIST,
 } object_type_t;
 
 typedef struct {
