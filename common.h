@@ -50,6 +50,7 @@ void list_insert(list_t* list, void* data);
 void list_remove_by_index(list_t* list, int item_index);
 void list_remove_by_data(list_t* list, void* data);
 void* list_get_item(list_t* list, int item_index);
+void list_set_item(list_t* list, int item_index, void* data);
 int list_get_item_count(list_t* list);
 
 

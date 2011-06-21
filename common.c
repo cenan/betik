@@ -212,6 +212,21 @@ void* list_get_item(list_t* list, int item_index)
 	return NULL;
 }
 
+void list_set_item(list_t* list, int item_index, void* data)
+{
+	int i = 0;
+	listitem_t* item;
+
+	item = list->head;
+	while (item != NULL) {
+		if (i == item_index) {
+			item->data = data;
+		}
+		i++;
+		item = item->next;
+	}
+}
+
 int list_get_item_count(list_t* list)
 {
 	return list->item_count;
