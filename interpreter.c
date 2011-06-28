@@ -145,24 +145,6 @@ static variable_t* int_funccall(runtime_t* rt, funccall_t* f)
 		v->obj->data = (void*)list_get_item_count(var->obj->data);
 		return v;
 	}
-	if (strcmp(f->function_name, "set") == 0) {
-		variable_t* v1 = int_expression(rt, list_get_item(f->arguments, 0));
-		variable_t* v2 = int_expression(rt, list_get_item(f->arguments, 1));
-		variable_t* v3 = int_expression(rt, list_get_item(f->arguments, 2));
-
-		printf("set0:%d\n", v1->obj->type);
-		printf("set1:%d\n", v2->obj->type);
-		printf("set2:%d\n", v3->obj->type);
-
-		list_t* list = v1->obj->data;
-		printf("itemcount:%d\n", list_get_item_count(list));
-		list_set_item(list, (int)v2->obj->data, v3->obj->data);
-
-		variable_t* v = create_variable(rt, "#");
-		v->obj = create_object(OBJ_NUMBER);
-		v->obj->data = 0;
-		return v;
-	}
 	for (int i = 0; i < list_get_item_count(rt->ast->function_list); i++) {
 		funcdef_t* fd = list_get_item(rt->ast->function_list, i);
 		if (strcmp(f->function_name, fd->name) == 0) {
