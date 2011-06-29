@@ -72,8 +72,24 @@ object_t* create_object(object_type_t obj_type)
 	obj->reference_count = 0;
 	obj->data = 0;
 	obj->scope = 0;
+	obj->properties = create_list();
 
 	return obj;
+}
+
+variable_t* get_property(runtime_t* rt, variable_t* var, char* property_name)
+{
+	for (int i = 0; i < list_get_item_count(var->obj->properties); i++) {
+		variable_t* p = (variable_t*)list_get_item(var->obj->properties, i);
+		if (strcmp(p->name, property_name) == 0) {
+			return p;
+		}
+	}
+	variable_t* new_prop = (variable_t*)malloc(sizeof(variable_t));
+	new_prop->name = duplicate_string(property_name);
+	new_prop->obj = 0;
+	list_insert(var->obj->properties, new_prop);
+	return new_prop;
 }
 
 variable_t* call_variable_op(runtime_t* rt, variable_t* var1, variable_t* var2, token_type_t tok)

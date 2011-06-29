@@ -247,6 +247,11 @@ static variable_t* int_value(runtime_t* rt, value_t* v)
 				}
 			}
 			var = create_variable(rt, (char*)v->value);
+		} else {
+			if (v->subvalue != 0) {
+				variable_t* subvar = int_value(rt, v->subvalue);
+				return get_property(rt, var, subvar->name);
+			}
 		}
 	}
 	return var;

@@ -71,6 +71,7 @@ static struct {
 	{"-", TT_OP_SUB},
 	{"*", TT_OP_MUL},
 	{"/", TT_OP_DIV},
+	{".", TT_OP_DOT},
 	{",", TT_OP_COMMA},
 	{"(", TT_OP_POPEN},
 	{")", TT_OP_PCLOSE},

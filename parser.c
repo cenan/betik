@@ -105,6 +105,7 @@ static expression_t* parse_expression(parser_t* p)
 			value_t* value = (value_t*)malloc(sizeof(value_t));
 			value->type = VT_EXPRESSION;
 			value->value = parse_expression(p);
+			value->subvalue = 0;
 			list_insert(expression->values, value);
 			match(p, TT_OP_PCLOSE);
 		} else {
@@ -126,6 +127,7 @@ static expression_t* parse_expression(parser_t* p)
 				value_t* value = (value_t*)malloc(sizeof(value_t));
 				value->type = VT_EXPRESSION;
 				value->value = parse_expression(p);
+				value->subvalue = 0;
 				list_insert(expression->values, value);
 				break;
 			}
@@ -244,6 +246,7 @@ static statement_t* parse_statement(parser_t* p)
 static value_t* parse_value(parser_t* p)
 {
 	value_t* value = (value_t*)malloc(sizeof(value_t));
+	value->subvalue = 0;
 	token_type_t tok = get_token(p->t);
 	if (TT_NUMBER == tok) {
 		value->type = VT_CNUMBER;
@@ -279,6 +282,16 @@ static value_t* parse_value(parser_t* p)
 			value->value = listindex;
 			listindex->index = parse_expression(p);
 			match(p, TT_OP_BCLOSE);
+		} else if (TT_OP_DOT == tok) {
+			unget_token(p->t); // .
+			unget_token(p->t); // IDENT
+			tok = get_token(p->t);
+			value->type = VT_IDENT;
+			value->value = duplicate_string((char*)(p->t->token_value));
+			match(p, TT_OP_DOT);
+			match(p, TT_IDENT);
+			unget_token(p->t);
+			value->subvalue = parse_value(p);
 		} else {
 			unget_token(p->t);
 			unget_token(p->t);

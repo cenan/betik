@@ -80,9 +80,10 @@ typedef struct {
 	void* value;
 } statement_t;
 
-typedef struct {
+typedef struct _value_t {
 	value_type_t type;
 	void* value;
+	struct _value_t* subvalue;
 } value_t;
 
 typedef struct {
