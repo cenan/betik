@@ -249,8 +249,14 @@ static variable_t* int_value(runtime_t* rt, value_t* v)
 			var = create_variable(rt, (char*)v->value);
 		} else {
 			if (v->subvalue != 0) {
-				variable_t* subvar = int_value(rt, v->subvalue);
-				return get_property(rt, var, subvar->name);
+				if (v->subvalue->type != VT_FUNCCALL) {
+					variable_t* subvar = int_value(rt, v->subvalue);
+					return get_property(rt, var, subvar->name);
+				} else {
+					funccall_t* fc = v->subvalue->value;
+					variable_t* vp = get_property(rt, var, fc->function_name);
+					return call_funcdef(rt, fc, vp->obj->data, 0);
+				}
 			}
 		}
 	}
