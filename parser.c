@@ -148,19 +148,21 @@ static funcdef_t* parse_funcdef(parser_t* p, bool is_inline)
 		match(p, TT_IDENT);
 		strcpy(funcdef->name, ((char*)(p->t->token_value)));
 	}
-	match(p, TT_OP_POPEN);
-
 	funcdef->parameters = create_list();
-
 	token_type_t tok = get_token(p->t);
-	if (TT_OP_PCLOSE != tok) {
+	if (TT_OP_POPEN == tok) {
+		tok = get_token(p->t);
+		if (TT_OP_PCLOSE != tok) {
+			unget_token(p->t);
+			do {
+				list_insert(funcdef->parameters, parse_vardecl(p));
+				get_token(p->t);
+			} while (TT_OP_COMMA == p->t->token_type);
+		}
+		expect(p, TT_OP_PCLOSE);
+	} else {
 		unget_token(p->t);
-		do {
-			list_insert(funcdef->parameters, parse_vardecl(p));
-			get_token(p->t);
-		} while (TT_OP_COMMA == p->t->token_type);
 	}
-	expect(p, TT_OP_PCLOSE);
 	funcdef->block = parse_block(p);
 	match(p, TT_END);
 	return funcdef;
