@@ -92,6 +92,14 @@ variable_t* get_property(runtime_t* rt, variable_t* var, char* property_name)
 	return new_prop;
 }
 
+void set_property(runtime_t* rt, object_t* base, char* key, variable_t* value)
+{
+	variable_t* new_prop = (variable_t*)malloc(sizeof(variable_t));
+	new_prop->name = duplicate_string(key);
+	new_prop->obj = value->obj;
+	list_insert(base->properties, new_prop);
+}
+
 variable_t* call_variable_op(runtime_t* rt, variable_t* var1, variable_t* var2, token_type_t tok)
 {
 	variable_t* var = create_variable(rt, "#");

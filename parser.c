@@ -29,6 +29,7 @@ static expression_t* parse_expression(parser_t* p);
 static funcdef_t* parse_funcdef(parser_t* p, bool is_inline);
 static ifstatement_t* parse_if(parser_t* p);
 static list_t* parse_list(parser_t* p);
+static inlineobj_t* parse_object(parser_t* p);
 static statement_t* parse_statement(parser_t* p);
 static value_t* parse_value(parser_t* p);
 static vardecl_t* parse_vardecl(parser_t* p);
@@ -50,8 +51,10 @@ static void expect(parser_t* p, int expected_token)
 static int match(parser_t* p, token_type_t tok)
 {
 	get_token(p->t);
-	if (p->t->token_type != tok)
+	if (p->t->token_type != tok) {
+		expect(p, tok);
 		return 0;
+	}
 	return 1;
 }
 
@@ -218,6 +221,30 @@ static list_t* parse_list(parser_t* p)
 	return list;
 }
 
+static inlineobj_t* parse_object(parser_t* p) {
+	inlineobj_t* obj = (inlineobj_t*)malloc(sizeof(inlineobj_t));
+
+	obj->keys = create_list();
+	obj->values = create_list();
+
+	match(p, TT_OP_COPEN);
+
+	token_type_t tok = get_token(p->t);
+	while (tok == TT_STRING) {
+		list_insert(obj->keys, duplicate_string((char*)(p->t->token_value)));
+		match(p, TT_OP_COLON);
+		list_insert(obj->values, parse_expression(p));
+		tok = get_token(p->t);
+		if (tok != TT_OP_COMMA) {
+			expect(p, TT_OP_CCLOSE);
+			break;
+		}
+		tok = get_token(p->t);
+	}
+
+	return obj;
+}
+
 static statement_t* parse_statement(parser_t* p)
 {
 	statement_t* statement = (statement_t*)malloc(sizeof(statement_t));
@@ -266,6 +293,10 @@ static value_t* parse_value(parser_t* p)
 		value->type = VT_LIST;
 		unget_token(p->t);
 		value->value = parse_list(p);
+	} else if (TT_OP_COPEN == tok) {
+		value->type = VT_INLINE_OBJ;
+		unget_token(p->t);
+		value->value = parse_object(p);
 	} else if (TT_IDENT == tok) {
 		tok = get_token(p->t);
 		if (TT_OP_POPEN == tok) {

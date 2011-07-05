@@ -228,6 +228,16 @@ static variable_t* int_value(runtime_t* rt, value_t* v)
 				return list_get_item(var->obj->data, (int)v->obj->data);
 			}
 		}
+	} else if (VT_INLINE_OBJ == v->type) {
+		var = create_variable(rt, "#");
+		var->obj = create_object(OBJ_BASE);
+		var->obj->reference_count = 1;
+		var->obj->data = 0;
+		inlineobj_t* iobj = v->value;
+		for (int i = 0; i < list_get_item_count(iobj->keys); i++) {
+			set_property(rt, var->obj, list_get_item(iobj->keys, i), int_expression(rt, list_get_item(iobj->values, i)));
+		}
+		return var;
 	} else if (VT_FUNCCALL == v->type) {
 		return int_funccall(rt, v->value);
 	} else if (VT_INLINE_FUNC == v->type) {

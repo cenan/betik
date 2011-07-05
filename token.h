@@ -57,6 +57,7 @@ typedef enum {
 	TT_OP_BCLOSE  = 44,
 	TT_OP_COPEN   = 45,
 	TT_OP_CCLOSE  = 46,
+	TT_OP_COLON   = 47,
 	TT_NOP        = 50,
 
 	// keywords

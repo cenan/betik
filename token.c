@@ -85,6 +85,7 @@ static struct {
 	{">", TT_OP_GT},
 	{"<=",TT_OP_LTE},
 	{"<", TT_OP_LT},
+	{":", TT_OP_COLON},
 };
 
 void init_tokenizer(tokenizer_t* t, char* source)
