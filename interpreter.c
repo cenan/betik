@@ -65,7 +65,7 @@ static variable_t* int_expression(runtime_t* rt, expression_t* e)
 	return var;
 }
 
-static variable_t* call_funcdef(runtime_t* rt, funccall_t* f, funcdef_t* fd, scope_t* scope)
+static variable_t* call_funcdef(runtime_t* rt, funccall_t* f, funcdef_t* fd, scope_t* scope, variable_t* this_var)
 {
 	variable_t* var = 0;
 
@@ -73,7 +73,10 @@ static variable_t* call_funcdef(runtime_t* rt, funccall_t* f, funcdef_t* fd, sco
 
 	if (0 != scope) {
 		for (int i = 0; i < list_get_item_count(scope->variables); i++) {
-			list_insert(sc->variables, list_get_item(scope->variables, i));
+			variable_t* v = list_get_item(scope->variables, i);
+			if (strcmp(v->name, "this") != 0) {
+				list_insert(sc->variables, v);
+			}
 		}
 	}
 
@@ -96,6 +99,10 @@ static variable_t* call_funcdef(runtime_t* rt, funccall_t* f, funcdef_t* fd, sco
 		rt->current_scope = tmpscope;
 
 		va->obj = vtmp->obj;
+	}
+	if (this_var != 0) {
+		variable_t* varthis = create_variable(rt, "this");
+		varthis->obj = this_var->obj;
 	}
 	var = int_block(rt, fd->block);
 
@@ -148,7 +155,7 @@ static variable_t* int_funccall(runtime_t* rt, funccall_t* f)
 	for (int i = 0; i < list_get_item_count(rt->ast->function_list); i++) {
 		funcdef_t* fd = list_get_item(rt->ast->function_list, i);
 		if (strcmp(f->function_name, fd->name) == 0) {
-			return call_funcdef(rt, f, fd, 0);
+			return call_funcdef(rt, f, fd, 0, 0);
 		}
 	}
 	var = get_variable(rt, f->function_name);
@@ -158,7 +165,7 @@ static variable_t* int_funccall(runtime_t* rt, funccall_t* f)
 	} else {
 		funcdef_t* fd = (funcdef_t*)var->obj->data;
 		scope_t* scope = (scope_t*)var->obj->scope;
-		return call_funcdef(rt, f, fd, scope);
+		return call_funcdef(rt, f, fd, scope, 0);
 	}
 }
 
@@ -255,7 +262,7 @@ static variable_t* int_value(runtime_t* rt, value_t* v)
 				} else {
 					funccall_t* fc = v->subvalue->value;
 					variable_t* vp = get_property(rt, var, fc->function_name);
-					return call_funcdef(rt, fc, vp->obj->data, 0);
+					return call_funcdef(rt, fc, vp->obj->data, 0, var);
 				}
 			}
 		}
