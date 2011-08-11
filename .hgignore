@@ -1,7 +1,0 @@
-syntax: glob
-
-*.o
-a.out
-betik
-.sconsign.dblite
-
