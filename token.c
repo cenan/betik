@@ -56,6 +56,7 @@ static struct {
 	{"and",    TT_OP_AND},
 	{"or",     TT_OP_OR},
 	{"if",     TT_IF},
+	{"else",   TT_ELSE},
 	{"while",  TT_WHILE},
 	{"end",    TT_END},
 	{"def",    TT_DEF},

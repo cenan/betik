@@ -63,10 +63,11 @@ typedef enum {
 	// keywords
 	TT_END        = 80,
 	TT_IF         = 81,
-	TT_WHILE      = 82,
-	TT_DEF        = 83,
-	TT_RETURN     = 84,
-	TT_PRINT      = 85,
+	TT_ELSE       = 82,
+	TT_WHILE      = 83,
+	TT_DEF        = 84,
+	TT_RETURN     = 85,
+	TT_PRINT      = 86,
 } token_type_t;
 
 #define TOK_IS_BINARY_OP(t) (((t) >= 10) && ((t) < 30))

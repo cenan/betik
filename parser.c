@@ -22,7 +22,7 @@
 #include <stdbool.h>
 #include "parser.h"
 
-#define IS_END_OF_BLOCK_TOKEN(t) ((t == TT_END) || (t == TT_DEF) || (t == TT_EOF))
+#define IS_END_OF_BLOCK_TOKEN(t) ((t == TT_END) || (t == TT_ELSE) || (t == TT_DEF) || (t == TT_EOF))
 
 static block_t* parse_block(parser_t* p);
 static expression_t* parse_expression(parser_t* p);
@@ -199,7 +199,14 @@ static ifstatement_t* parse_if(parser_t* p)
 	match(p, TT_IF);
 	ifstatement->expression = parse_expression(p);
 	ifstatement->block = parse_block(p);
-	match(p, TT_END);
+	token_type_t tok = get_token(p->t);
+	if (TT_ELSE == tok) {
+		ifstatement->else_block = parse_block(p);
+		match(p, TT_END);
+	} else {
+		ifstatement->else_block = 0;
+		expect(p, TT_END);
+	}
 	return ifstatement;
 }
 

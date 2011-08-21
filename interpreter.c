@@ -175,6 +175,8 @@ static variable_t* int_if(runtime_t* rt, ifstatement_t* is)
 	variable_t* rv = 0;
 	if ((int)var->obj->data) {
 		rv = int_block(rt, is->block);
+	} else if (is->else_block != 0) {
+		rv = int_block(rt, is->else_block);
 	}
 	return rv;
 }

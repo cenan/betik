@@ -69,6 +69,7 @@ typedef struct {
 typedef struct {
 	expression_t* expression;
 	block_t* block;
+	block_t* else_block;
 } ifstatement_t;
 
 typedef struct {
