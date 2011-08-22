@@ -1,20 +1,20 @@
-/*
- Betik
- Copyright (C) 2010-2011 cenan ozen <cenan.ozen[at]gmail.com>
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+/**
+ * Copyright 2010-2011 Cenan Özen <cenan.ozen@gmail.com>
+ * This file is part of Betik.
+ *
+ * Betik is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Betik is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Betik. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -58,9 +58,9 @@ static variable_t* int_expression(runtime_t* rt, expression_t* e)
 		v = (value_t*)list_get_item(e->values, i);
 		var1 = int_value(rt, v);
 		token_type_t tok = (token_type_t)list_get_item(e->binaryops, i-1);
-		
+
 		var = call_variable_op(rt, var, var1, tok);
-		
+
 	}
 	return var;
 }
@@ -91,7 +91,7 @@ static variable_t* call_funcdef(runtime_t* rt, funccall_t* f, funcdef_t* fd, sco
 	for (int j = 0; j < list_get_item_count(fd->parameters); j++) {
 		vardecl_t* vd = list_get_item(fd->parameters, j);
 		variable_t* va = create_variable(rt, vd->name);
-		
+
 		scope_t* tmpscope;
 		tmpscope = rt->current_scope;
 		rt->current_scope = prevsc;
@@ -306,7 +306,7 @@ void interpret(parser_t* p)
 	rt->current_scope = rt->global_scope;
 	stack_push(rt->scopes, rt->current_scope);
 	rt->ast = p->ast;
-	
+
 	for (int i = 0; i < list_get_item_count(p->ast->statement_list); i++) {
 		int_statement(rt, list_get_item(p->ast->statement_list, i));
 	}

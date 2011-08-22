@@ -1,20 +1,20 @@
-/*
- Betik
- Copyright (C) 2010-2011 cenan ozen <cenan.ozen[at]gmail.com>
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+/**
+ * Copyright 2010-2011 Cenan Özen <cenan.ozen@gmail.com>
+ * This file is part of Betik.
+ *
+ * Betik is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Betik is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Betik. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -420,9 +420,9 @@ static void parser_test2()
 	parser_t* p = (parser_t*)malloc(sizeof(parser_t));
 	init_parser(p, "def asd() 100+200-600-20 end 100+321-121");
 	parse(p);
-	
+
 	assert_int_equal(1, list_get_item_count(p->ast->statement_list));
-	
+
 	statement_t* s = list_get_item(p->ast->statement_list, 0);
 	expression_t* e = (expression_t*)s->value;
 	assert_int_equal(300, tester_expr_eval(e));
