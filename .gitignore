@@ -1,3 +1,6 @@
 *.o
 betik
 .sconsign.dblite
+libbetik.a
+betik.dll
+betik.exe
