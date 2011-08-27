@@ -35,7 +35,10 @@ static value_t* parse_value(parser_t* p);
 static vardecl_t* parse_vardecl(parser_t* p);
 static whilestatement_t* parse_while(parser_t* p);
 
-static void expect(parser_t* p, int expected_token)
+#define expect(a, b) _expect(a, b, __FILE__, __LINE__)
+#define match(a, b) _match(a, b, __FILE__, __LINE__)
+
+static void _expect(parser_t* p, int expected_token, const char* file, int line)
 {
 	if (p->t->token_type != expected_token) {
 		fprintf(stderr,
@@ -44,15 +47,16 @@ static void expect(parser_t* p, int expected_token)
 				expected_token,
 				p->t->token_type,
 				(char*)(p->t->token_value));
+		fprintf(stderr, "at %s:%d\n", file, line);
 		exit(EXIT_FAILURE);
 	}
 }
 
-static int match(parser_t* p, token_type_t tok)
+static int _match(parser_t* p, token_type_t tok, const char* file, int line)
 {
 	get_token(p->t);
 	if (p->t->token_type != tok) {
-		expect(p, tok);
+		_expect(p, tok, file, line);
 		return 0;
 	}
 	return 1;
@@ -223,7 +227,8 @@ static list_t* parse_list(parser_t* p)
 		if (TT_OP_BCLOSE == tok) {
 			break;
 		}
-		match(p, TT_OP_COMMA);
+		expect(p, TT_OP_COMMA);
+		tok = get_token(p->t);
 	}
 	return list;
 }
