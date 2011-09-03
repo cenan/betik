@@ -9,5 +9,5 @@
 <while_st>   := while <expression> <block> end
 <expression> := (['('<expression>')'] | [<unary_op>] <value> [<binary_op>])*
 <unary_op>   := '-'
-<binary_op>  := '+' | '-' | '*' | '/' | '=' | '>' | '<' | '>=' | '<=' | '==' | '.'
+<binary_op>  := '+' | '-' | '*' | '/' | '=' | '<>' | '>' | '<' | '>=' | '<=' | '==' | '.'
 ```
