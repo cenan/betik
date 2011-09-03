@@ -16,6 +16,7 @@
  * along with Betik. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define _GNU_SOURCE // for readline
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -119,9 +120,9 @@ static variable_t* call_funcdef(runtime_t* rt, funccall_t* f, funcdef_t* fd, sco
 static void do_print(variable_t* var)
 {
 	if (OBJ_NUMBER == var->obj->type) {
-		printf("%d\n", (int)var->obj->data);
+		printf("%d", (int)var->obj->data);
 	} else if (OBJ_STRING == var->obj->type) {
-		printf("%s\n", (char*)var->obj->data);
+		printf("%s", (char*)var->obj->data);
 	}
 }
 
@@ -133,6 +134,16 @@ static variable_t* int_funccall(runtime_t* rt, funccall_t* f)
 		var = int_expression(rt, list_get_item(f->arguments, 0));
 		do_print(var);
 		return var;
+	}
+	if (strcmp(f->function_name, "gets") == 0) {
+		variable_t* v = create_variable(rt, "#");
+		v->obj = create_object(OBJ_STRING);
+		char* lineptr = NULL;
+		size_t n = 0;
+		size_t m = getline(&lineptr, &n, stdin);
+		lineptr[m-1] = '\0';
+		v->obj->data = lineptr;
+		return v;
 	}
 	if (strcmp(f->function_name, "env") == 0) {
 		var = int_expression(rt, list_get_item(f->arguments, 0));
@@ -152,6 +163,29 @@ static variable_t* int_funccall(runtime_t* rt, funccall_t* f)
 		v->obj->data = (void*)list_get_item_count(var->obj->data);
 		return v;
 	}
+	if (strcmp(f->function_name, "eval") == 0) {
+		var = int_expression(rt, list_get_item(f->arguments, 0));		
+		parser_t* p = (parser_t*)malloc(sizeof(parser_t));
+		init_parser(p, (char*)var->obj->data);
+		parse(p);
+
+		// merge functions to current runtime
+		for (int i = 0; i < list_get_item_count(p->ast->function_list); i++) {
+			list_insert(rt->ast->function_list, list_get_item(p->ast->function_list, i));
+		}
+
+		for (int i = 0; i < list_get_item_count(p->ast->statement_list); i++) {
+			int_statement(rt, list_get_item(p->ast->statement_list, i));
+		}
+		release_parser(p);
+		free(p);
+
+		variable_t* v = create_variable(rt, "#");
+		v->obj = create_object(OBJ_STRING);
+		v->obj->data = var->obj->data;
+		return v;
+	}
+
 	for (int i = 0; i < list_get_item_count(rt->ast->function_list); i++) {
 		funcdef_t* fd = list_get_item(rt->ast->function_list, i);
 		if (strcmp(f->function_name, fd->name) == 0) {
