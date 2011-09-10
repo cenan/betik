@@ -139,9 +139,14 @@ static variable_t* int_funccall(runtime_t* rt, funccall_t* f)
 		variable_t* v = create_variable(rt, "#");
 		v->obj = create_object(OBJ_STRING);
 		char* lineptr = NULL;
+#ifdef _WIN32
+		lineptr = (char*)malloc(1024);
+		gets(lineptr);
+#else
 		size_t n = 0;
 		size_t m = getline(&lineptr, &n, stdin);
 		lineptr[m-1] = '\0';
+#endif
 		v->obj->data = lineptr;
 		return v;
 	}
