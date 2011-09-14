@@ -60,6 +60,7 @@ static void run_buffer(char* buf)
 	free(p);
 }
 
+#ifdef SCRIPT_PACK
 static unsigned char* read_file(char* filename, size_t* ofilesize)
 {
 	unsigned char* buffer;
@@ -74,6 +75,7 @@ static unsigned char* read_file(char* filename, size_t* ofilesize)
 	*ofilesize = filesize;
 	return buffer;
 }
+#endif
 
 static void run_file(char* filename)
 {
@@ -146,10 +148,13 @@ int main(int argc, char* argv[])
 	}
 #endif // SCRIPT_PACK
 	if (argc == 1) {
+#ifdef SCRIPT_PACK
 		if (!check_pack(argv[0])) {
-			printf("usage: %s FILE\n", argv[0]);
-			return 2;
+			return 0;
 		}
+#endif
+		printf("usage: %s FILE\n", argv[0]);
+		return 2;
 	}
 	run_file(argv[1]);
 
