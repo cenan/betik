@@ -4,3 +4,7 @@ betik
 libbetik.a
 betik.dll
 betik.exe
+.cproject
+.project
+Debug
+Release

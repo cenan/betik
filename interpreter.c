@@ -239,7 +239,7 @@ static variable_t* int_statement(runtime_t* rt, statement_t* s)
 
 static variable_t* int_value(runtime_t* rt, value_t* v)
 {
-	variable_t* var;
+	variable_t* var = NULL;
 
 	if (VT_CNUMBER == v->type) {
 		var = create_variable(rt, "#");

@@ -86,7 +86,9 @@ static void run_file(char* filename)
 	int filesize = ftell(f);
 	fseek(f, 0, SEEK_SET);
 	src = (char*)malloc(filesize+1);
-	fread(src, 1, filesize, f);
+	if (fread(src, 1, filesize, f) != filesize) {
+		return;
+	}
 	fclose(f);
 	src[filesize] = '\0';
 	run_buffer(src);
