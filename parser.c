@@ -263,21 +263,27 @@ static statement_t* parse_statement(parser_t* p)
 
 	token_type_t tok = get_token(p->t);
 	unget_token(p->t);
-	if (TT_IF == tok) {
+
+	switch (tok) {
+	case TT_IF:
 		statement->type = ST_IF;
 		statement->value = parse_if(p);
-	} else if (TT_WHILE == tok) {
+		break;
+	case TT_WHILE:
 		statement->type = ST_WHILE;
 		statement->value = parse_while(p);
-	} else if (TT_RETURN == tok) {
+		break;
+	case TT_RETURN:
 		statement->type = ST_RETURN;
 		match(p, TT_RETURN);
 		statement->value = parse_expression(p);
-	} else if (TT_PRINT == tok) {
+		break;
+	case TT_PRINT:
 		statement->type = ST_PRINT;
 		match(p, TT_PRINT);
 		statement->value = parse_expression(p);
-	} else {
+		break;
+	default:
 		statement->type = ST_EXPRESSION;
 		statement->value = parse_expression(p);
 	}
