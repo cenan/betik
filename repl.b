@@ -1,12 +1,19 @@
 #!/usr/bin/env betik
 
-print "betik repl\n"
-print "type q to quit\n"
+println("betik repl")
+println("type q to quit")
 
-print ">> "
-a = gets()
+def quit()
+	println("type q to quit")
+end
+
+def read()
+	print ">> "
+	return gets()
+end
+
+a = read()
 while a <> "q"
 	eval(a)
-	print ">> "
-	a = gets()
+	a = read()
 end

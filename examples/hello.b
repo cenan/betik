@@ -1,4 +1,4 @@
 #!/usr/bin/env betik
 
-print "Hello world"
+println("Hello world")
 

@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2011 Cenan Ozen <cenan.ozen@gmail.com>
+ * Copyright 2010-2012 Cenan Ozen <cenan.ozen@gmail.com>
  * This file is part of Betik.
  *
  * Betik is free software: you can redistribute it and/or modify

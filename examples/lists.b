@@ -14,7 +14,7 @@ x = ["1",2,3,4,5,6,7,8,9,10]
 reverse(x)
 i = 0
 while i < len(x)
-	print "list["+i+"] : "+x[i]
+	println("list["+i+"] : "+x[i])
 	i = i + 1
 end
 

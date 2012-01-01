@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2011 Cenan Ozen <cenan.ozen@gmail.com>
+ * Copyright 2010-2012 Cenan Ozen <cenan.ozen@gmail.com>
  * This file is part of Betik.
  *
  * Betik is free software: you can redistribute it and/or modify
@@ -133,6 +133,12 @@ static variable_t* int_funccall(runtime_t* rt, funccall_t* f)
 	if (strcmp(f->function_name, "print") == 0) {
 		var = int_expression(rt, list_get_item(f->arguments, 0));
 		do_print(var);
+		return var;
+	}
+	if (strcmp(f->function_name, "println") == 0) {
+		var = int_expression(rt, list_get_item(f->arguments, 0));
+		do_print(var);
+		printf("\n");
 		return var;
 	}
 	if (strcmp(f->function_name, "gets") == 0) {

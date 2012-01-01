@@ -15,5 +15,5 @@ def compose(f1,f2)
 end
 
 add_double = compose(add, double)
-print add_double(8,7)
+println(add_double(8,7))
 
