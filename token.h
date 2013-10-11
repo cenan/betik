@@ -19,7 +19,7 @@
 #ifndef token_h
 #define token_h
 
-#include "common.h"
+#include "retronym/retronym.h"
 
 #define MAX_IDENT_LENGTH   64
 #define MAX_STRING_LENGTH  1024
@@ -75,6 +75,7 @@ typedef enum {
 #define TOK_IS_UNARY_OP(t)  ((((t) >= 30) && ((t) < 40)) || ((t) == TT_OP_SUB))
 
 typedef struct {
+	heap_t* heap;
 	char* source;
 	int source_index;
 	stack_t* index_stack;
@@ -83,7 +84,7 @@ typedef struct {
 	int line_number;
 } tokenizer_t;
 
-void init_tokenizer(tokenizer_t* t, char* source);
+void init_tokenizer(heap_t* heap, tokenizer_t* t, char* source);
 void release_tokenizer(tokenizer_t* t);
 token_type_t get_token(tokenizer_t* t);
 void unget_token(tokenizer_t* t);

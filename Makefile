@@ -1,8 +1,9 @@
-CFLAGS = -c -Wall -std=c99
-OBJS = common.o main.o parser.o runtime.o token.o interpreter.o seatest.o
+CFLAGS = -c -Wall -std=c99 -Iretronym
+OBJS = main.o parser.o runtime.o token.o interpreter.o seatest.o
 
 all: $(OBJS)
-	$(CC) -o betik $(OBJS)
+	$(CC) -o betik $(OBJS) -L./retronym -lretronym
+	@cp retronym/libretronym.so ./
 
 %o: %c
 	$(CC) $(CFLAGS) $< -o $@

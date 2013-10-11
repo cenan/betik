@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "common.h"
+#include "retronym/retronym.h"
 #include "interpreter.h"
 #include "runtime.h"
 
@@ -70,7 +70,7 @@ static variable_t* call_funcdef(runtime_t* rt, funccall_t* f, funcdef_t* fd, sco
 {
 	variable_t* var = 0;
 
-	scope_t* sc = create_scope();
+	scope_t* sc = create_scope(rt);
 
 	if (0 != scope) {
 		for (int i = 0; i < list_get_item_count(scope->variables); i++) {
@@ -143,7 +143,7 @@ static variable_t* int_funccall(runtime_t* rt, funccall_t* f)
 	}
 	if (strcmp(f->function_name, "gets") == 0) {
 		variable_t* v = create_variable(rt, "#");
-		v->obj = create_object(OBJ_STRING);
+		v->obj = create_object(rt, OBJ_STRING);
 		char* lineptr = NULL;
 #ifdef _WIN32
 		lineptr = (char*)malloc(1024);
@@ -159,7 +159,7 @@ static variable_t* int_funccall(runtime_t* rt, funccall_t* f)
 	if (strcmp(f->function_name, "env") == 0) {
 		var = int_expression(rt, list_get_item(f->arguments, 0));
 		variable_t* v = create_variable(rt, "#");
-		v->obj = create_object(OBJ_STRING);
+		v->obj = create_object(rt, OBJ_STRING);
 		v->obj->data = getenv(var->obj->data);
 		return v;
 	}
@@ -170,7 +170,7 @@ static variable_t* int_funccall(runtime_t* rt, funccall_t* f)
 			exit(EXIT_FAILURE);
 		}
 		variable_t* v = create_variable(rt, "#");
-		v->obj = create_object(OBJ_NUMBER);
+		v->obj = create_object(rt, OBJ_NUMBER);
 		v->obj->data = (void*)list_get_item_count(var->obj->data);
 		return v;
 	}
@@ -192,7 +192,7 @@ static variable_t* int_funccall(runtime_t* rt, funccall_t* f)
 		free(p);
 
 		variable_t* v = create_variable(rt, "#");
-		v->obj = create_object(OBJ_STRING);
+		v->obj = create_object(rt, OBJ_STRING);
 		v->obj->data = var->obj->data;
 		return v;
 	}
@@ -249,19 +249,19 @@ static variable_t* int_value(runtime_t* rt, value_t* v)
 
 	if (VT_CNUMBER == v->type) {
 		var = create_variable(rt, "#");
-		var->obj = create_object(OBJ_NUMBER);
+		var->obj = create_object(rt, OBJ_NUMBER);
 		var->obj->reference_count += 1;
 		var->obj->data = v->value;
 	} else if (VT_CSTRING == v->type) {
 		var = create_variable(rt, "#");
-		var->obj = create_object(OBJ_STRING);
+		var->obj = create_object(rt, OBJ_STRING);
 		var->obj->reference_count += 1;
 		var->obj->data = v->value;
 	} else if (VT_LIST == v->type) {
 		var = create_variable(rt, "#");
-		var->obj = create_object(OBJ_LIST);
+		var->obj = create_object(rt, OBJ_LIST);
 		var->obj->reference_count += 1;
-		var->obj->data = create_list();
+		var->obj->data = create_list(rt->heap);
 		for (int i = 0; i < list_get_item_count((list_t*)v->value); i++) {
 			list_insert((list_t*)var->obj->data, int_value(rt, list_get_item(v->value, i)));
 		}
@@ -277,7 +277,7 @@ static variable_t* int_value(runtime_t* rt, value_t* v)
 		}
 	} else if (VT_INLINE_OBJ == v->type) {
 		var = create_variable(rt, "#");
-		var->obj = create_object(OBJ_BASE);
+		var->obj = create_object(rt, OBJ_BASE);
 		var->obj->reference_count = 1;
 		var->obj->data = 0;
 		inlineobj_t* iobj = v->value;
@@ -289,7 +289,7 @@ static variable_t* int_value(runtime_t* rt, value_t* v)
 		return int_funccall(rt, v->value);
 	} else if (VT_INLINE_FUNC == v->type) {
 		var = create_variable(rt, "#");
-		var->obj = create_object(OBJ_FUNCTION);
+		var->obj = create_object(rt, OBJ_FUNCTION);
 		var->obj->reference_count = 1;
 		var->obj->data = v->value;
 		var->obj->scope = rt->current_scope;
@@ -304,7 +304,7 @@ static variable_t* int_value(runtime_t* rt, value_t* v)
 				funcdef_t* f = list_get_item(rt->ast->function_list, i);
 				if (strcmp((char*)v->value, f->name) == 0) {
 					var = create_variable(rt, (char*)v->value);
-					var->obj = create_object(OBJ_FUNCTION);
+					var->obj = create_object(rt, OBJ_FUNCTION);
 					var->obj->reference_count = 1;
 					var->obj->data = f;
 					return var;
@@ -346,8 +346,9 @@ void interpret(parser_t* p)
 {
 	runtime_t* rt = (runtime_t*)malloc(sizeof(runtime_t));
 
-	rt->scopes = create_stack(sizeof(scope_t*));
-	rt->global_scope = create_scope();
+	rt->heap = create_heap(4 * 1024 * 1024);
+	rt->scopes = create_stack(rt->heap, sizeof(scope_t*));
+	rt->global_scope = create_scope(rt);
 	rt->current_scope = rt->global_scope;
 	stack_push(rt->scopes, rt->current_scope);
 	rt->ast = p->ast;
@@ -359,6 +360,7 @@ void interpret(parser_t* p)
 		scope_t* sc = (scope_t*)stack_pop(rt->scopes);
 		destroy_scope(sc);
 	}
+	destroy_heap(rt->heap);
 	free(rt);
 }
 

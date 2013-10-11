@@ -20,7 +20,7 @@
 #define parser_h
 
 #include "token.h"
-#include "common.h"
+#include "retronym/retronym.h"
 
 typedef enum {
 	ST_EXPRESSION,
@@ -110,6 +110,7 @@ typedef struct {
 typedef struct {
 	tokenizer_t* t;
 	ast_t* ast;
+	heap_t* heap;
 } parser_t;
 
 void init_parser(parser_t* p, char* source);

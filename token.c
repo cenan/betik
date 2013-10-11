@@ -90,11 +90,13 @@ static struct {
 	{":", TT_OP_COLON},
 };
 
-void init_tokenizer(tokenizer_t* t, char* source)
+void init_tokenizer(heap_t* heap, tokenizer_t* t, char* source)
 {
-	t->source = duplicate_string(source);
+	t->heap = heap;
+
+	t->source = duplicate_string(t->heap, source);
 	t->source_index = 0;
-	t->index_stack = create_stack(sizeof(int));
+	t->index_stack = create_stack(t->heap, sizeof(int));
 	t->token_value = NULL;
 	t->token_type = TT_NONE;
 	t->line_number = 1;
@@ -102,7 +104,7 @@ void init_tokenizer(tokenizer_t* t, char* source)
 
 void release_tokenizer(tokenizer_t* t)
 {
-	free(t->source);
+	r_free(t->heap, t->source);
 	free(t->token_value);
 	destroy_stack(t->index_stack);
 	memset(t, 0, sizeof(tokenizer_t));
@@ -234,7 +236,7 @@ token_type_t get_token(tokenizer_t* t)
 
 	eatwhitespace(t);
 
-	stack_push(t->index_stack, &t->source_index);
+	stack_push(t->index_stack, (void*)t->source_index);
 
 	if ('\0' == t->source[t->source_index]) {
 		t->token_type = TT_EOF;
@@ -269,7 +271,7 @@ token_type_t get_token(tokenizer_t* t)
 
 void unget_token(tokenizer_t* t)
 {
-	int prev_source_index = *(int*)stack_pop(t->index_stack);
+	int prev_source_index = (int)stack_pop(t->index_stack);
 	if (t->source_index <= prev_source_index) {
 		t->source_index = prev_source_index;
 		return;

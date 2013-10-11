@@ -22,10 +22,10 @@
 
 #include "runtime.h"
 
-scope_t* create_scope()
+scope_t* create_scope(runtime_t* rt)
 {
 	scope_t* scope = (scope_t*)malloc(sizeof(scope_t));
-	scope->variables = create_list();
+	scope->variables = create_list(rt->heap);
 	scope->reference_count = 1;
 	return scope;
 }
@@ -64,7 +64,7 @@ variable_t* create_variable(runtime_t* rt, char* variable_name)
 	return var;
 }
 
-object_t* create_object(object_type_t obj_type)
+object_t* create_object(runtime_t* rt, object_type_t obj_type)
 {
 	object_t* obj = (object_t*)malloc(sizeof(object_t));
 
@@ -72,7 +72,7 @@ object_t* create_object(object_type_t obj_type)
 	obj->reference_count = 0;
 	obj->data = 0;
 	obj->scope = 0;
-	obj->properties = create_list();
+	obj->properties = create_list(rt->heap);
 
 	return obj;
 }
@@ -86,7 +86,7 @@ variable_t* get_property(runtime_t* rt, variable_t* var, char* property_name)
 		}
 	}
 	variable_t* new_prop = (variable_t*)malloc(sizeof(variable_t));
-	new_prop->name = duplicate_string(property_name);
+	new_prop->name = duplicate_string(rt->heap, property_name);
 	new_prop->obj = 0;
 	list_insert(var->obj->properties, new_prop);
 	return new_prop;
@@ -95,7 +95,7 @@ variable_t* get_property(runtime_t* rt, variable_t* var, char* property_name)
 void set_property(runtime_t* rt, object_t* base, char* key, variable_t* value)
 {
 	variable_t* new_prop = (variable_t*)malloc(sizeof(variable_t));
-	new_prop->name = duplicate_string(key);
+	new_prop->name = duplicate_string(rt->heap, key);
 	new_prop->obj = value->obj;
 	list_insert(base->properties, new_prop);
 }
@@ -103,7 +103,7 @@ void set_property(runtime_t* rt, object_t* base, char* key, variable_t* value)
 variable_t* call_variable_op(runtime_t* rt, variable_t* var1, variable_t* var2, token_type_t tok)
 {
 	variable_t* var = create_variable(rt, "#");
-	var->obj = create_object(OBJ_NUMBER);
+	var->obj = create_object(rt, OBJ_NUMBER);
 	var->obj->reference_count += 1;
 	if (TT_OP_ADD == tok) {
 		if (var1->obj->type == OBJ_NUMBER) {

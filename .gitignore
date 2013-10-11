@@ -9,3 +9,5 @@ betik.exe
 Debug
 Release
 tags
+*.so
+retronym
