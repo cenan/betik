@@ -1,4 +1,4 @@
-CFLAGS = -c -Wall -std=c99 -Iretronym
+CFLAGS = -c -Wall -std=c99 -Iretronym -Iinclude
 OBJS = main.o parser.o runtime.o token.o interpreter.o seatest.o
 
 all: $(OBJS)

@@ -19,7 +19,7 @@
 #ifndef runtime_h
 #define runtime_h
 
-#include "retronym/retronym.h"
+#include "retronym.h"
 #include "parser.h"
 
 

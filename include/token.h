@@ -19,7 +19,7 @@
 #ifndef token_h
 #define token_h
 
-#include "retronym/retronym.h"
+#include "retronym.h"
 
 #define MAX_IDENT_LENGTH   64
 #define MAX_STRING_LENGTH  1024

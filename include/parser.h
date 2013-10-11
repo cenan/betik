@@ -20,7 +20,7 @@
 #define parser_h
 
 #include "token.h"
-#include "retronym/retronym.h"
+#include "retronym.h"
 
 typedef enum {
 	ST_EXPRESSION,
