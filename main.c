@@ -52,15 +52,12 @@ void all_unit_tests(void)
 
 static void run_buffer(char* buf)
 {
-	for (int i = 0; i < 100000; i++) {
 	parser_t* p = (parser_t*)malloc(sizeof(parser_t));
 	init_parser(p, buf);
 	parse(p);
 	interpret(p);
 	release_parser(p);
 	free(p);
-	printf("%d\n", i);
-	}
 }
 
 #ifdef SCRIPT_PACK
