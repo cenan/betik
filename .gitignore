@@ -11,3 +11,5 @@ Release
 tags
 *.so
 retronym
+*.cbp
+*.layout
