@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2013 Cenan Ozen <cenan.ozen@gmail.com>
+ * Copyright 2010-2014 Cenan Ozen <betik@cenanozen.com>
  * This file is part of Betik.
  *
  * Betik is free software: you can redistribute it and/or modify
@@ -64,12 +64,11 @@ static int _match(parser_t* p, token_type_t tok, const char* file, int line)
 
 void init_parser(parser_t* p, char* source)
 {
-	p->heap = create_heap(1024 * 1024);
 	p->t = (tokenizer_t*)malloc(sizeof(tokenizer_t));
-	init_tokenizer(p->heap, p->t, source);
+	init_tokenizer(p->t, source);
 	p->ast = (ast_t*)malloc(sizeof(ast_t));
-	p->ast->statement_list = create_list(p->heap);
-	p->ast->function_list = create_list(p->heap);
+	p->ast->statement_list = create_list();
+	p->ast->function_list = create_list();
 }
 
 void release_parser(parser_t* p)
@@ -79,14 +78,13 @@ void release_parser(parser_t* p)
 	free(p->ast);
 	release_tokenizer(p->t);
 	free(p->t);
-	destroy_heap(p->heap);
 }
 
 
 static block_t* parse_block(parser_t* p)
 {
 	block_t* block = (block_t*)malloc(sizeof(block_t));
-	block->statements = create_list(p->heap);
+	block->statements = create_list();
 	while (1) {
 		token_type_t tok;
 		tok = get_token(p->t);
@@ -104,9 +102,9 @@ static block_t* parse_block(parser_t* p)
 static expression_t* parse_expression(parser_t* p)
 {
 	expression_t* expression = (expression_t*)malloc(sizeof(expression_t));
-	expression->values = create_list(p->heap);
-	expression->binaryops = create_list(p->heap);
-	expression->unaryops = create_list(p->heap);
+	expression->values = create_list();
+	expression->binaryops = create_list();
+	expression->unaryops = create_list();
 	expression->line_number = p->t->line_number;
 	while (1) {
 		token_type_t tok = get_token(p->t);
@@ -157,7 +155,7 @@ static funcdef_t* parse_funcdef(parser_t* p, bool is_inline)
 		match(p, TT_IDENT);
 		strcpy(funcdef->name, ((char*)(p->t->token_value)));
 	}
-	funcdef->parameters = create_list(p->heap);
+	funcdef->parameters = create_list();
 	token_type_t tok = get_token(p->t);
 	if (TT_OP_POPEN == tok) {
 		tok = get_token(p->t);
@@ -180,7 +178,7 @@ static funcdef_t* parse_funcdef(parser_t* p, bool is_inline)
 static funccall_t* parse_funccall(parser_t* p)
 {
 	funccall_t* funccall = (funccall_t*)malloc(sizeof(funccall_t));
-	funccall->arguments = create_list(p->heap);
+	funccall->arguments = create_list();
 
 	match(p, TT_IDENT);
 	strcpy(funccall->function_name, (char*)(p->t->token_value));
@@ -218,7 +216,7 @@ static ifstatement_t* parse_if(parser_t* p)
 
 static list_t* parse_list(parser_t* p)
 {
-	list_t* list = create_list(p->heap);
+	list_t* list = create_list();
 
 	match(p, TT_OP_BOPEN);
 	token_type_t tok = get_token(p->t);
@@ -238,14 +236,14 @@ static list_t* parse_list(parser_t* p)
 static inlineobj_t* parse_object(parser_t* p) {
 	inlineobj_t* obj = (inlineobj_t*)malloc(sizeof(inlineobj_t));
 
-	obj->keys = create_list(p->heap);
-	obj->values = create_list(p->heap);
+	obj->keys = create_list();
+	obj->values = create_list();
 
 	match(p, TT_OP_COPEN);
 
 	token_type_t tok = get_token(p->t);
 	while (tok == TT_STRING) {
-		list_insert(obj->keys, duplicate_string(p->heap, (char*)(p->t->token_value)));
+		list_insert(obj->keys, duplicate_string((char*)(p->t->token_value)));
 		match(p, TT_OP_COLON);
 		list_insert(obj->values, parse_expression(p));
 		tok = get_token(p->t);
@@ -302,7 +300,7 @@ static value_t* parse_value(parser_t* p)
 		value->value = (void*)(*(int*)(p->t->token_value));
 	} else if (TT_STRING == tok) {
 		value->type = VT_CSTRING;
-		value->value = duplicate_string(p->heap, (char*)(p->t->token_value));
+		value->value = duplicate_string((char*)(p->t->token_value));
 	} else if (TT_DEF == tok) {
 		value->type = VT_INLINE_FUNC;
 		unget_token(p->t);
@@ -329,7 +327,7 @@ static value_t* parse_value(parser_t* p)
 			unget_token(p->t);
 			tok = get_token(p->t);
 			listindex_t* listindex = (listindex_t*)malloc(sizeof(listindex_t));
-			listindex->name = duplicate_string(p->heap, (char*)(p->t->token_value));
+			listindex->name = duplicate_string((char*)(p->t->token_value));
 			value->type = VT_LISTINDEX;
 			match(p, TT_OP_BOPEN);
 			value->value = listindex;
@@ -340,7 +338,7 @@ static value_t* parse_value(parser_t* p)
 			unget_token(p->t); // IDENT
 			tok = get_token(p->t);
 			value->type = VT_IDENT;
-			value->value = duplicate_string(p->heap, (char*)(p->t->token_value));
+			value->value = duplicate_string((char*)(p->t->token_value));
 			match(p, TT_OP_DOT);
 			match(p, TT_IDENT);
 			unget_token(p->t);
@@ -350,7 +348,7 @@ static value_t* parse_value(parser_t* p)
 			unget_token(p->t);
 			tok = get_token(p->t);
 			value->type = VT_IDENT;
-			value->value = duplicate_string(p->heap, (char*)(p->t->token_value));
+			value->value = duplicate_string((char*)(p->t->token_value));
 		}
 	} else {
 		fprintf(stderr, "unknown value type:%d\n", tok);

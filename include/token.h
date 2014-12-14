@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2013 Cenan Ozen <cenan.ozen@gmail.com>
+ * Copyright 2010-2014 Cenan Ozen <betik@cenanozen.com>
  * This file is part of Betik.
  *
  * Betik is free software: you can redistribute it and/or modify
@@ -19,7 +19,7 @@
 #ifndef token_h
 #define token_h
 
-#include "retronym.h"
+#include "common.h"
 
 #define MAX_IDENT_LENGTH   64
 #define MAX_STRING_LENGTH  1024
@@ -75,16 +75,15 @@ typedef enum {
 #define TOK_IS_UNARY_OP(t)  ((((t) >= 30) && ((t) < 40)) || ((t) == TT_OP_SUB))
 
 typedef struct {
-	heap_t* heap;
 	char* source;
 	int source_index;
-	stack_t* index_stack;
+	btk_stack_t* index_stack;
 	void* token_value;
 	token_type_t token_type;
 	int line_number;
 } tokenizer_t;
 
-void init_tokenizer(heap_t* heap, tokenizer_t* t, char* source);
+void init_tokenizer(tokenizer_t* t, char* source);
 void release_tokenizer(tokenizer_t* t);
 token_type_t get_token(tokenizer_t* t);
 void unget_token(tokenizer_t* t);

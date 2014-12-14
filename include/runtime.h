@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2013 Cenan Ozen <cenan.ozen@gmail.com>
+ * Copyright 2010-2014 Cenan Ozen <betik@cenanozen.com>
  * This file is part of Betik.
  *
  * Betik is free software: you can redistribute it and/or modify
@@ -19,7 +19,7 @@
 #ifndef runtime_h
 #define runtime_h
 
-#include "retronym.h"
+#include "common.h"
 #include "parser.h"
 
 
@@ -50,8 +50,7 @@ typedef struct {
 } variable_t;
 
 typedef struct {
-	heap_t* heap;
-	stack_t* scopes;
+	btk_stack_t* scopes;
 	scope_t* global_scope;
 	scope_t* current_scope;
 	ast_t* ast;

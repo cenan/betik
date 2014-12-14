@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2013 Cenan Ozen <cenan.ozen@gmail.com>
+ * Copyright 2010-2014 Cenan Ozen <betik@cenanozen.com>
  * This file is part of Betik.
  *
  * Betik is free software: you can redistribute it and/or modify
@@ -22,19 +22,6 @@
 
 #include "parser.h"
 #include "interpreter.h"
-
-#ifdef _WIN32
-#define SCRIPT_PACK
-#endif
-
-#ifdef SCRIPT_PACK
-
-typedef struct {
-	unsigned offset;
-	unsigned signature;
-} script_pack_t;
-
-#endif
 
 #ifdef UNITTESTS
 #include "seatest.h"
@@ -60,23 +47,6 @@ static void run_buffer(char* buf)
 	free(p);
 }
 
-#ifdef SCRIPT_PACK
-static unsigned char* read_file(char* filename, size_t* ofilesize)
-{
-	unsigned char* buffer;
-
-	FILE* f = fopen(filename, "rb");
-	fseek(f, 0, SEEK_END);
-	int filesize = ftell(f);
-	fseek(f, 0, SEEK_SET);
-	buffer = (unsigned char*)malloc(filesize);
-	fread(buffer, 1, filesize, f);
-	fclose(f);
-	*ofilesize = filesize;
-	return buffer;
-}
-#endif
-
 static void run_file(char* filename)
 {
 	char* src;
@@ -95,66 +65,13 @@ static void run_file(char* filename)
 	free(src);
 }
 
-#ifdef SCRIPT_PACK
-static int check_pack(char* self_filename)
-{
-	script_pack_t sp;
-	FILE* f = fopen(self_filename, "rb");
-	fseek(f, -sizeof(sp), SEEK_END);
-	int filesize = ftell(f);
-	fread(&sp, sizeof(sp), 1, f);
-	if (sp.signature != 0xdeadc0de) {
-		return 0;
-	}
-	fseek(f, sp.offset, SEEK_SET);
-	int script_size = filesize - sp.offset;
-	char* src = (char*)malloc(script_size + 1);
-	fread(src, 1, script_size, f);
-	fclose(f);
-	src[script_size-2] = '\0';
-	run_buffer(src);
-	free(src);
-	return 1;
-}
-#endif
-
 int main(int argc, char* argv[])
 {
 #ifdef UNITTESTS
 	run_tests(all_unit_tests);
 #else // UNITTESTS
 
-#ifdef SCRIPT_PACK
-	if ((argc > 1) && (strncmp(argv[1], "-p", 2) == 0)) {
-		size_t betik_size, script_size;
-		unsigned char* betik = read_file(argv[0], &betik_size);
-		unsigned char* script = read_file(&argv[1][2], &script_size);
-
-		char destination[1024];
-		strcpy(destination, &argv[1][2]);
-		strcat(destination, ".exe");
-
-		FILE* f = fopen(destination, "wb");
-		fwrite(betik, betik_size, 1, f);
-		fwrite(script, script_size, 1, f);
-
-		script_pack_t sp;
-		sp.offset = betik_size;
-		sp.signature = 0xdeadc0de;
-		fwrite(&sp, sizeof(sp), 1, f);
-
-		fclose(f);
-		free(script);
-		free(betik);
-		return 0;
-	}
-#endif // SCRIPT_PACK
 	if (argc == 1) {
-#ifdef SCRIPT_PACK
-		if (!check_pack(argv[0])) {
-			return 0;
-		}
-#endif
 		printf("usage: %s FILE\n", argv[0]);
 		return 2;
 	}

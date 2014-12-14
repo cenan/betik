@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2013 Cenan Ozen <cenan.ozen@gmail.com>
+ * Copyright 2010-2014 Cenan Ozen <betik@cenanozen.com>
  * This file is part of Betik.
  *
  * Betik is free software: you can redistribute it and/or modify
@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "retronym/retronym.h"
+#include "common.h"
 #include "interpreter.h"
 #include "runtime.h"
 
@@ -175,7 +175,7 @@ static variable_t* int_funccall(runtime_t* rt, funccall_t* f)
 		return v;
 	}
 	if (strcmp(f->function_name, "eval") == 0) {
-		var = int_expression(rt, list_get_item(f->arguments, 0));		
+		var = int_expression(rt, list_get_item(f->arguments, 0));
 		parser_t* p = (parser_t*)malloc(sizeof(parser_t));
 		init_parser(p, (char*)var->obj->data);
 		parse(p);
@@ -261,7 +261,7 @@ static variable_t* int_value(runtime_t* rt, value_t* v)
 		var = create_variable(rt, "#");
 		var->obj = create_object(rt, OBJ_LIST);
 		var->obj->reference_count += 1;
-		var->obj->data = create_list(rt->heap);
+		var->obj->data = create_list();
 		for (int i = 0; i < list_get_item_count((list_t*)v->value); i++) {
 			list_insert((list_t*)var->obj->data, int_value(rt, list_get_item(v->value, i)));
 		}
@@ -346,8 +346,7 @@ void interpret(parser_t* p)
 {
 	runtime_t* rt = (runtime_t*)malloc(sizeof(runtime_t));
 
-	rt->heap = create_heap(4 * 1024 * 1024);
-	rt->scopes = create_stack(rt->heap, sizeof(scope_t*));
+	rt->scopes = create_stack(sizeof(scope_t*));
 	rt->global_scope = create_scope(rt);
 	rt->current_scope = rt->global_scope;
 	stack_push(rt->scopes, rt->current_scope);
@@ -360,7 +359,6 @@ void interpret(parser_t* p)
 		scope_t* sc = (scope_t*)stack_pop(rt->scopes);
 		destroy_scope(sc);
 	}
-	destroy_heap(rt->heap);
 	free(rt);
 }
 

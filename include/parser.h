@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2013 Cenan Ozen <cenan.ozen@gmail.com>
+ * Copyright 2010-2014 Cenan Ozen <betik@cenanozen.com>
  * This file is part of Betik.
  *
  * Betik is free software: you can redistribute it and/or modify
@@ -20,7 +20,7 @@
 #define parser_h
 
 #include "token.h"
-#include "retronym.h"
+#include "common.h"
 
 typedef enum {
 	ST_EXPRESSION,
@@ -110,7 +110,6 @@ typedef struct {
 typedef struct {
 	tokenizer_t* t;
 	ast_t* ast;
-	heap_t* heap;
 } parser_t;
 
 void init_parser(parser_t* p, char* source);
