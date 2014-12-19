@@ -53,4 +53,6 @@ void* list_get_item(list_t* list, int item_index);
 void list_set_item(list_t* list, int item_index, void* data);
 int list_get_item_count(list_t* list);
 
+#define LAST_LIST_ITEM(lst) list_gem_item(lst, list_get_item_count(lst))
+
 #endif
