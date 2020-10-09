@@ -6,8 +6,7 @@
 #define MAX_IDENT_LENGTH 64
 #define MAX_STRING_LENGTH 1024
 
-typedef enum
-{
+typedef enum {
     TT_NONE = 0,
     TT_IDENT = 1,
     TT_NUMBER = 2,
@@ -57,8 +56,7 @@ typedef enum
 #define TOK_IS_BINARY_OP(t) (((t) >= 10) && ((t) < 30))
 #define TOK_IS_UNARY_OP(t) ((((t) >= 30) && ((t) < 40)) || ((t) == TT_OP_SUB))
 
-typedef struct
-{
+typedef struct {
     char *source;
     int source_index;
     btk_stack_t *index_stack;

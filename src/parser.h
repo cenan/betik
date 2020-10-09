@@ -4,8 +4,7 @@
 #include "token.h"
 #include "common.h"
 
-typedef enum
-{
+typedef enum {
     ST_EXPRESSION,
     ST_IF,
     ST_WHILE,
@@ -13,8 +12,7 @@ typedef enum
     ST_PRINT
 } statement_type_t;
 
-typedef enum
-{
+typedef enum {
     VT_EXPRESSION,
     VT_CNUMBER,
     VT_CSTRING,
@@ -26,84 +24,71 @@ typedef enum
     VT_LISTINDEX,
 } value_type_t;
 
-typedef struct
-{
+typedef struct {
     list_t *statements;
 } block_t;
 
-typedef struct
-{
+typedef struct {
     list_t *values;
     list_t *binaryops;
     list_t *unaryops;
     int line_number;
 } expression_t;
 
-typedef struct
-{
+typedef struct {
     char function_name[MAX_IDENT_LENGTH];
     list_t *arguments;
 } funccall_t;
 
-typedef struct
-{
+typedef struct {
     char name[MAX_IDENT_LENGTH];
     list_t *parameters;
     block_t *block;
     int line_number;
 } funcdef_t;
 
-typedef struct
-{
+typedef struct {
     expression_t *expression;
     block_t *block;
     block_t *else_block;
 } ifstatement_t;
 
-typedef struct
-{
+typedef struct {
     char *name;
     expression_t *index;
 } listindex_t;
 
-typedef struct
-{
+typedef struct {
     list_t *keys;
     list_t *values;
 } inlineobj_t;
 
-typedef struct
-{
+typedef struct {
     statement_type_t type;
     void *value;
 } statement_t;
 
-typedef struct _value_t
-{
+typedef struct _value_t {
     value_type_t type;
     void *value;
     struct _value_t *subvalue;
 } value_t;
 
-typedef struct
-{
+typedef struct {
     char name[MAX_IDENT_LENGTH];
 } vardecl_t;
 
-typedef struct
-{
+typedef struct {
     expression_t *expression;
     block_t *block;
 } whilestatement_t;
 
-typedef struct
-{
+typedef struct {
     list_t *statement_list;
     list_t *function_list;
 } ast_t;
 
-typedef struct
-{
+typedef struct {
     tokenizer_t *t;
     ast_t *ast;
 } parser_t;

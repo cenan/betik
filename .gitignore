@@ -1,4 +1,5 @@
-*.o
+build/*.o
+build/*.d
 betik
 .sconsign.dblite
 libbetik.a
